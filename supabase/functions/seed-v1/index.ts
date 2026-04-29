@@ -68,12 +68,24 @@ Deno.serve(async (req) => {
     if (vErr) return json({ error: vErr.message }, 500);
 
     const t = transform(parsed.data!, version.id);
+    const dedupe = <T extends Record<string, unknown>>(rows: T[], key: string): T[] => {
+      const seen = new Set<string>();
+      const out: T[] = [];
+      for (const r of rows) {
+        const k = String(r[key] ?? "");
+        if (!k || seen.has(k)) continue;
+        seen.add(k);
+        out.push(r);
+      }
+      return out;
+    };
     const chunks = <T,>(a: T[], n = 500) => Array.from({ length: Math.ceil(a.length / n) }, (_, i) => a.slice(i * n, i * n + n));
-    for (const [name, rows] of [
-      ["sites", t.sites], ["cleaners", t.cleaners], ["schedule", t.schedule],
-      ["closures", t.closures], ["delivery_log", t.delivery_log],
+    for (const [name, rows, key] of [
+      ["sites", t.sites, "site_id"], ["cleaners", t.cleaners, "cleaner_id"], ["schedule", t.schedule, "schedule_id"],
+      ["closures", t.closures, "closure_id"], ["delivery_log", t.delivery_log, "delivery_id"],
     ] as const) {
-      for (const c of chunks(rows)) {
+      const deduped = dedupe(rows as Record<string, unknown>[], key);
+      for (const c of chunks(deduped)) {
         const { error } = await admin.from(name).insert(c);
         if (error) { await admin.from("data_versions").delete().eq("id", version.id); return json({ error: `${name}: ${error.message}` }, 500); }
       }
