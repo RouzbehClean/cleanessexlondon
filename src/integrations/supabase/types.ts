@@ -14,16 +14,589 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      cleaners: {
+        Row: {
+          active: string | null
+          cleaner_id: string
+          dbs_date: string | null
+          dbs_done: string | null
+          email: string | null
+          employment_type: string | null
+          name: string | null
+          notes: string | null
+          pat_test_personal_kit: string | null
+          phone: string | null
+          pk: string
+          region_primary: string | null
+          right_to_work_on_file: string | null
+          safeguarding_done: string | null
+          sub_nlw_flag: string | null
+          team_id: string | null
+          version_id: string
+        }
+        Insert: {
+          active?: string | null
+          cleaner_id: string
+          dbs_date?: string | null
+          dbs_done?: string | null
+          email?: string | null
+          employment_type?: string | null
+          name?: string | null
+          notes?: string | null
+          pat_test_personal_kit?: string | null
+          phone?: string | null
+          pk?: string
+          region_primary?: string | null
+          right_to_work_on_file?: string | null
+          safeguarding_done?: string | null
+          sub_nlw_flag?: string | null
+          team_id?: string | null
+          version_id: string
+        }
+        Update: {
+          active?: string | null
+          cleaner_id?: string
+          dbs_date?: string | null
+          dbs_done?: string | null
+          email?: string | null
+          employment_type?: string | null
+          name?: string | null
+          notes?: string | null
+          pat_test_personal_kit?: string | null
+          phone?: string | null
+          pk?: string
+          region_primary?: string | null
+          right_to_work_on_file?: string | null
+          safeguarding_done?: string | null
+          sub_nlw_flag?: string | null
+          team_id?: string | null
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cleaners_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "data_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      closures: {
+        Row: {
+          affects: string | null
+          closure_id: string
+          date: string | null
+          description: string | null
+          pk: string
+          type: string | null
+          version_id: string
+        }
+        Insert: {
+          affects?: string | null
+          closure_id: string
+          date?: string | null
+          description?: string | null
+          pk?: string
+          type?: string | null
+          version_id: string
+        }
+        Update: {
+          affects?: string | null
+          closure_id?: string
+          date?: string | null
+          description?: string | null
+          pk?: string
+          type?: string | null
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "closures_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "data_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      data_versions: {
+        Row: {
+          activated_at: string | null
+          id: string
+          is_active: boolean
+          label: string
+          notes: string | null
+          row_counts: Json | null
+          source_filename: string | null
+          uploaded_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          activated_at?: string | null
+          id?: string
+          is_active?: boolean
+          label: string
+          notes?: string | null
+          row_counts?: Json | null
+          source_filename?: string | null
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          activated_at?: string | null
+          id?: string
+          is_active?: boolean
+          label?: string
+          notes?: string | null
+          row_counts?: Json | null
+          source_filename?: string | null
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
+      delivery_log: {
+        Row: {
+          cleaner_id: string
+          date: string | null
+          delivery_id: string
+          hours_clocked: number | null
+          notes: string | null
+          pay_rate_at_time: number | null
+          pk: string
+          site_id: string
+          source: string | null
+          version_id: string
+        }
+        Insert: {
+          cleaner_id: string
+          date?: string | null
+          delivery_id: string
+          hours_clocked?: number | null
+          notes?: string | null
+          pay_rate_at_time?: number | null
+          pk?: string
+          site_id: string
+          source?: string | null
+          version_id: string
+        }
+        Update: {
+          cleaner_id?: string
+          date?: string | null
+          delivery_id?: string
+          hours_clocked?: number | null
+          notes?: string | null
+          pay_rate_at_time?: number | null
+          pk?: string
+          site_id?: string
+          source?: string | null
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_log_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "data_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          email: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      schedule: {
+        Row: {
+          billing_rate_override: number | null
+          cleaner_id: string
+          confidence: string | null
+          day_of_week: string | null
+          duration_hours: number | null
+          effective_from: string | null
+          effective_to: string | null
+          notes: string | null
+          pay_rate: number | null
+          pk: string
+          schedule_id: string
+          shift_group_id: string | null
+          shift_role: string | null
+          site_id: string
+          start_time: string | null
+          version_id: string
+          visits_in_apr_2026: number | null
+        }
+        Insert: {
+          billing_rate_override?: number | null
+          cleaner_id: string
+          confidence?: string | null
+          day_of_week?: string | null
+          duration_hours?: number | null
+          effective_from?: string | null
+          effective_to?: string | null
+          notes?: string | null
+          pay_rate?: number | null
+          pk?: string
+          schedule_id: string
+          shift_group_id?: string | null
+          shift_role?: string | null
+          site_id: string
+          start_time?: string | null
+          version_id: string
+          visits_in_apr_2026?: number | null
+        }
+        Update: {
+          billing_rate_override?: number | null
+          cleaner_id?: string
+          confidence?: string | null
+          day_of_week?: string | null
+          duration_hours?: number | null
+          effective_from?: string | null
+          effective_to?: string | null
+          notes?: string | null
+          pay_rate?: number | null
+          pk?: string
+          schedule_id?: string
+          shift_group_id?: string | null
+          shift_role?: string | null
+          site_id?: string
+          start_time?: string | null
+          version_id?: string
+          visits_in_apr_2026?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "data_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sites: {
+        Row: {
+          access_instructions: string | null
+          access_method: string | null
+          active: string | null
+          address: string | null
+          alarm_info: string | null
+          billing_rate_default: number | null
+          client_name: string | null
+          contract_end: string | null
+          contract_start: string | null
+          contract_type: string | null
+          cupboard_codes: string | null
+          general_notes: string | null
+          hs_folder_last_updated: string | null
+          pat_test_due: string | null
+          pk: string
+          postcode: string | null
+          products_notes: string | null
+          products_supplied_by: string | null
+          region: string | null
+          site_contact_email: string | null
+          site_contact_name: string | null
+          site_contact_phone: string | null
+          site_id: string
+          team_grouping: string | null
+          term_time_only: string | null
+          version_id: string
+        }
+        Insert: {
+          access_instructions?: string | null
+          access_method?: string | null
+          active?: string | null
+          address?: string | null
+          alarm_info?: string | null
+          billing_rate_default?: number | null
+          client_name?: string | null
+          contract_end?: string | null
+          contract_start?: string | null
+          contract_type?: string | null
+          cupboard_codes?: string | null
+          general_notes?: string | null
+          hs_folder_last_updated?: string | null
+          pat_test_due?: string | null
+          pk?: string
+          postcode?: string | null
+          products_notes?: string | null
+          products_supplied_by?: string | null
+          region?: string | null
+          site_contact_email?: string | null
+          site_contact_name?: string | null
+          site_contact_phone?: string | null
+          site_id: string
+          team_grouping?: string | null
+          term_time_only?: string | null
+          version_id: string
+        }
+        Update: {
+          access_instructions?: string | null
+          access_method?: string | null
+          active?: string | null
+          address?: string | null
+          alarm_info?: string | null
+          billing_rate_default?: number | null
+          client_name?: string | null
+          contract_end?: string | null
+          contract_start?: string | null
+          contract_type?: string | null
+          cupboard_codes?: string | null
+          general_notes?: string | null
+          hs_folder_last_updated?: string | null
+          pat_test_due?: string | null
+          pk?: string
+          postcode?: string | null
+          products_notes?: string | null
+          products_supplied_by?: string | null
+          region?: string | null
+          site_contact_email?: string | null
+          site_contact_name?: string | null
+          site_contact_phone?: string | null
+          site_id?: string
+          team_grouping?: string | null
+          term_time_only?: string | null
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sites_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "data_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          cleaner_id: string | null
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          site_id: string | null
+          user_id: string
+        }
+        Insert: {
+          cleaner_id?: string | null
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          site_id?: string | null
+          user_id: string
+        }
+        Update: {
+          cleaner_id?: string | null
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          site_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      schedule_safe: {
+        Row: {
+          billing_rate_override: number | null
+          cleaner_id: string | null
+          confidence: string | null
+          day_of_week: string | null
+          duration_hours: number | null
+          effective_from: string | null
+          effective_to: string | null
+          notes: string | null
+          pay_rate: number | null
+          pk: string | null
+          schedule_id: string | null
+          shift_group_id: string | null
+          shift_role: string | null
+          site_id: string | null
+          start_time: string | null
+          version_id: string | null
+          visits_in_apr_2026: number | null
+        }
+        Insert: {
+          billing_rate_override?: never
+          cleaner_id?: string | null
+          confidence?: string | null
+          day_of_week?: string | null
+          duration_hours?: number | null
+          effective_from?: string | null
+          effective_to?: string | null
+          notes?: string | null
+          pay_rate?: never
+          pk?: string | null
+          schedule_id?: string | null
+          shift_group_id?: string | null
+          shift_role?: string | null
+          site_id?: string | null
+          start_time?: string | null
+          version_id?: string | null
+          visits_in_apr_2026?: number | null
+        }
+        Update: {
+          billing_rate_override?: never
+          cleaner_id?: string | null
+          confidence?: string | null
+          day_of_week?: string | null
+          duration_hours?: number | null
+          effective_from?: string | null
+          effective_to?: string | null
+          notes?: string | null
+          pay_rate?: never
+          pk?: string | null
+          schedule_id?: string | null
+          shift_group_id?: string | null
+          shift_role?: string | null
+          site_id?: string | null
+          start_time?: string | null
+          version_id?: string | null
+          visits_in_apr_2026?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "data_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sites_safe: {
+        Row: {
+          access_instructions: string | null
+          access_method: string | null
+          active: string | null
+          address: string | null
+          alarm_info: string | null
+          billing_rate_default: number | null
+          client_name: string | null
+          contract_end: string | null
+          contract_start: string | null
+          contract_type: string | null
+          cupboard_codes: string | null
+          general_notes: string | null
+          hs_folder_last_updated: string | null
+          pat_test_due: string | null
+          pk: string | null
+          postcode: string | null
+          products_notes: string | null
+          products_supplied_by: string | null
+          region: string | null
+          site_contact_email: string | null
+          site_contact_name: string | null
+          site_contact_phone: string | null
+          site_id: string | null
+          team_grouping: string | null
+          term_time_only: string | null
+          version_id: string | null
+        }
+        Insert: {
+          access_instructions?: string | null
+          access_method?: string | null
+          active?: string | null
+          address?: string | null
+          alarm_info?: string | null
+          billing_rate_default?: never
+          client_name?: string | null
+          contract_end?: string | null
+          contract_start?: string | null
+          contract_type?: string | null
+          cupboard_codes?: string | null
+          general_notes?: string | null
+          hs_folder_last_updated?: string | null
+          pat_test_due?: string | null
+          pk?: string | null
+          postcode?: string | null
+          products_notes?: string | null
+          products_supplied_by?: string | null
+          region?: string | null
+          site_contact_email?: string | null
+          site_contact_name?: string | null
+          site_contact_phone?: string | null
+          site_id?: string | null
+          team_grouping?: string | null
+          term_time_only?: string | null
+          version_id?: string | null
+        }
+        Update: {
+          access_instructions?: string | null
+          access_method?: string | null
+          active?: string | null
+          address?: string | null
+          alarm_info?: string | null
+          billing_rate_default?: never
+          client_name?: string | null
+          contract_end?: string | null
+          contract_start?: string | null
+          contract_type?: string | null
+          cupboard_codes?: string | null
+          general_notes?: string | null
+          hs_folder_last_updated?: string | null
+          pat_test_due?: string | null
+          pk?: string | null
+          postcode?: string | null
+          products_notes?: string | null
+          products_supplied_by?: string | null
+          region?: string | null
+          site_contact_email?: string | null
+          site_contact_name?: string | null
+          site_contact_phone?: string | null
+          site_id?: string | null
+          team_grouping?: string | null
+          term_time_only?: string | null
+          version_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sites_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "data_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
-      [_ in never]: never
+      active_version_id: { Args: never; Returns: string }
+      current_cleaner_id: { Args: never; Returns: string }
+      current_client_site_id: { Args: never; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "cleaner" | "client"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +723,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "cleaner", "client"],
+    },
   },
 } as const
