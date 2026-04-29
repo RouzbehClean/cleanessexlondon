@@ -37,12 +37,9 @@ Deno.serve(async (req) => {
     const { data: existing } = await admin.from("data_versions").select("id").eq("label", "v1 (seed)").maybeSingle();
     if (existing) return json({ ok: true, already_seeded: true });
 
-    const { file_url } = await req.json();
-    if (!file_url) return json({ error: "file_url required" }, 400);
-
-    const fileResp = await fetch(file_url);
-    if (!fileResp.ok) return json({ error: `fetch file failed: ${fileResp.status}` }, 500);
-    const buf = await fileResp.arrayBuffer();
+    // Accept the xlsx as raw bytes in the request body (POST application/octet-stream)
+    const buf = await req.arrayBuffer();
+    if (!buf || buf.byteLength === 0) return json({ error: "Empty file body" }, 400);
 
     const parsed = parseWorkbook(buf);
     if (parsed.error) return json({ error: parsed.error }, 400);
