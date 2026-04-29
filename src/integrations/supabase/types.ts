@@ -392,201 +392,31 @@ export type Database = {
       }
       user_roles: {
         Row: {
-          cleaner_id: string | null
           created_at: string
           id: string
           role: Database["public"]["Enums"]["app_role"]
-          site_id: string | null
           user_id: string
         }
         Insert: {
-          cleaner_id?: string | null
           created_at?: string
           id?: string
           role: Database["public"]["Enums"]["app_role"]
-          site_id?: string | null
           user_id: string
         }
         Update: {
-          cleaner_id?: string | null
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
-          site_id?: string | null
           user_id?: string
         }
         Relationships: []
       }
     }
     Views: {
-      schedule_safe: {
-        Row: {
-          billing_rate_override: number | null
-          cleaner_id: string | null
-          confidence: string | null
-          day_of_week: string | null
-          duration_hours: number | null
-          effective_from: string | null
-          effective_to: string | null
-          notes: string | null
-          pay_rate: number | null
-          pk: string | null
-          schedule_id: string | null
-          shift_group_id: string | null
-          shift_role: string | null
-          site_id: string | null
-          start_time: string | null
-          version_id: string | null
-          visits_in_apr_2026: number | null
-        }
-        Insert: {
-          billing_rate_override?: never
-          cleaner_id?: string | null
-          confidence?: string | null
-          day_of_week?: string | null
-          duration_hours?: number | null
-          effective_from?: string | null
-          effective_to?: string | null
-          notes?: string | null
-          pay_rate?: never
-          pk?: string | null
-          schedule_id?: string | null
-          shift_group_id?: string | null
-          shift_role?: string | null
-          site_id?: string | null
-          start_time?: string | null
-          version_id?: string | null
-          visits_in_apr_2026?: number | null
-        }
-        Update: {
-          billing_rate_override?: never
-          cleaner_id?: string | null
-          confidence?: string | null
-          day_of_week?: string | null
-          duration_hours?: number | null
-          effective_from?: string | null
-          effective_to?: string | null
-          notes?: string | null
-          pay_rate?: never
-          pk?: string | null
-          schedule_id?: string | null
-          shift_group_id?: string | null
-          shift_role?: string | null
-          site_id?: string | null
-          start_time?: string | null
-          version_id?: string | null
-          visits_in_apr_2026?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "schedule_version_id_fkey"
-            columns: ["version_id"]
-            isOneToOne: false
-            referencedRelation: "data_versions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      sites_safe: {
-        Row: {
-          access_instructions: string | null
-          access_method: string | null
-          active: string | null
-          address: string | null
-          alarm_info: string | null
-          billing_rate_default: number | null
-          client_name: string | null
-          contract_end: string | null
-          contract_start: string | null
-          contract_type: string | null
-          cupboard_codes: string | null
-          general_notes: string | null
-          hs_folder_last_updated: string | null
-          pat_test_due: string | null
-          pk: string | null
-          postcode: string | null
-          products_notes: string | null
-          products_supplied_by: string | null
-          region: string | null
-          site_contact_email: string | null
-          site_contact_name: string | null
-          site_contact_phone: string | null
-          site_id: string | null
-          team_grouping: string | null
-          term_time_only: string | null
-          version_id: string | null
-        }
-        Insert: {
-          access_instructions?: string | null
-          access_method?: string | null
-          active?: string | null
-          address?: string | null
-          alarm_info?: string | null
-          billing_rate_default?: never
-          client_name?: string | null
-          contract_end?: string | null
-          contract_start?: string | null
-          contract_type?: string | null
-          cupboard_codes?: string | null
-          general_notes?: string | null
-          hs_folder_last_updated?: string | null
-          pat_test_due?: string | null
-          pk?: string | null
-          postcode?: string | null
-          products_notes?: string | null
-          products_supplied_by?: string | null
-          region?: string | null
-          site_contact_email?: string | null
-          site_contact_name?: string | null
-          site_contact_phone?: string | null
-          site_id?: string | null
-          team_grouping?: string | null
-          term_time_only?: string | null
-          version_id?: string | null
-        }
-        Update: {
-          access_instructions?: string | null
-          access_method?: string | null
-          active?: string | null
-          address?: string | null
-          alarm_info?: string | null
-          billing_rate_default?: never
-          client_name?: string | null
-          contract_end?: string | null
-          contract_start?: string | null
-          contract_type?: string | null
-          cupboard_codes?: string | null
-          general_notes?: string | null
-          hs_folder_last_updated?: string | null
-          pat_test_due?: string | null
-          pk?: string | null
-          postcode?: string | null
-          products_notes?: string | null
-          products_supplied_by?: string | null
-          region?: string | null
-          site_contact_email?: string | null
-          site_contact_name?: string | null
-          site_contact_phone?: string | null
-          site_id?: string | null
-          team_grouping?: string | null
-          term_time_only?: string | null
-          version_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "sites_version_id_fkey"
-            columns: ["version_id"]
-            isOneToOne: false
-            referencedRelation: "data_versions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Functions: {
       active_version_id: { Args: never; Returns: string }
-      current_cleaner_id: { Args: never; Returns: string }
-      current_client_site_id: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -596,7 +426,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "cleaner" | "client"
+      app_role: "admin" | "staff"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -724,7 +554,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "cleaner", "client"],
+      app_role: ["admin", "staff"],
     },
   },
 } as const

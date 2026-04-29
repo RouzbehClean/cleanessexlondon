@@ -24,8 +24,8 @@ export default function CleanerDetail() {
       setC(cleaner);
       const { data: sites } = await supabase.from("sites").select("site_id,client_name");
       const sMap = new Map((sites ?? []).map((s) => [s.site_id, s.client_name]));
-      const { data: sch } = await supabase.from("schedule_safe").select("*").eq("cleaner_id", cleanerId);
-      setSchedule((sch ?? []).map((r) => ({ ...r, site_name: sMap.get(r.site_id) ?? r.site_id })));
+      const { data: sch } = await supabase.from("schedule").select("*").eq("cleaner_id", cleanerId);
+      setSchedule((sch ?? []).map((r: any) => ({ ...r, site_name: sMap.get(r.site_id) ?? r.site_id })));
       const { data: dl } = await supabase.from("delivery_log").select("*").eq("cleaner_id", cleanerId).order("date", { ascending: false }).limit(100);
       setDelivery((dl ?? []).map((r) => ({ ...r, site_name: sMap.get(r.site_id) ?? r.site_id })));
       setLoading(false);

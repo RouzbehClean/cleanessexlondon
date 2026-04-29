@@ -21,11 +21,11 @@ export default function SiteDetail() {
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const { data: s } = await supabase.from("sites_safe").select("*").eq("site_id", siteId).maybeSingle();
+      const { data: s } = await supabase.from("sites").select("*").eq("site_id", siteId).maybeSingle();
       setSite(s);
       const { data: sch } = await supabase
-        .from("schedule_safe")
-        .select("*, cleaners:cleaner_id(name, region_primary)")
+        .from("schedule")
+        .select("*")
         .eq("site_id", siteId)
         .order("day_of_week");
       // join cleaner name manually since FK isn't declared
