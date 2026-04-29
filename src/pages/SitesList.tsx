@@ -58,7 +58,7 @@ export default function SitesList() {
           <p className="text-sm text-muted-foreground">{filtered.length} of {rows.length} shown</p>
         </div>
         {isAdmin && (
-          <Button variant="outline" onClick={() => downloadXlsx(`sites-${new Date().toISOString().slice(0,10)}.xlsx`, [{ name: "Sites", rows: filtered }])}>
+          <Button variant="outline" onClick={() => downloadXlsx(`sites-${new Date().toISOString().slice(0,10)}.xlsx`, [{ name: "Sites", rows: filtered as unknown as Record<string, unknown>[] }])}>
             Export Excel
           </Button>
         )}
