@@ -1,18 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Building2, Users, Upload } from "lucide-react";
-
-const SEED_FILE_URL = "https://tcylmbjtwuswjxccleqm.supabase.co/storage/v1/object/public/seed-files/Master_Inventory_v9_2904.xlsx";
+import { toast } from "sonner";
 
 export default function Home() {
   const { user, isAdmin, isCleaner, isClient, refreshRoles } = useAuth();
   const [counts, setCounts] = useState<{ sites: number; cleaners: number; schedule: number } | null>(null);
   const [hasVersion, setHasVersion] = useState<boolean | null>(null);
   const [seeding, setSeeding] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     (async () => {
@@ -27,15 +27,32 @@ export default function Home() {
     })();
   }, []);
 
-  const seed = async () => {
+  const seed = async (file: File) => {
     setSeeding(true);
-    const { data, error } = await supabase.functions.invoke("seed-v1", { body: { file_url: SEED_FILE_URL } });
-    setSeeding(false);
-    if (error || (data as any)?.error) {
-      alert("Seed failed: " + (error?.message || (data as any)?.error));
-    } else {
-      await refreshRoles();
-      window.location.reload();
+    try {
+      const buf = await file.arrayBuffer();
+      const { data: sess } = await supabase.auth.getSession();
+      const token = sess.session?.access_token;
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/seed-v1`;
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          "Content-Type": "application/octet-stream",
+        },
+        body: buf,
+      });
+      const data = await resp.json();
+      if (!resp.ok || data?.error) {
+        toast.error("Seed failed: " + (data?.error || resp.statusText));
+      } else {
+        toast.success("Data loaded — you are now admin");
+        await refreshRoles();
+        window.location.reload();
+      }
+    } finally {
+      setSeeding(false);
     }
   };
 
@@ -55,9 +72,18 @@ export default function Home() {
           </CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              No data has been loaded yet. Click below to load the initial Master Inventory and become the first admin.
+              No data has been loaded yet. Upload <code>Master_Inventory_v9_2904.xlsx</code> to seed v1 and become the first admin.
             </p>
-            <Button onClick={seed} disabled={seeding}>{seeding ? "Loading data…" : "Initialize app with v1"}</Button>
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".xlsx"
+              className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) seed(f); }}
+            />
+            <Button onClick={() => fileRef.current?.click()} disabled={seeding}>
+              {seeding ? "Loading data…" : "Upload Master Inventory & Initialize"}
+            </Button>
           </CardContent>
         </Card>
       )}
