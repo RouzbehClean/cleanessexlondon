@@ -45,7 +45,13 @@ export default function Home() {
       });
       const data = await resp.json();
       if (!resp.ok || data?.error) {
-        toast.error("Seed failed: " + (data?.error || resp.statusText));
+        const ve = data?.validation_errors as Array<{sheet:string;row_index:number;field:string;message:string}> | undefined;
+        if (ve?.length) {
+          console.error("Validation errors:", ve);
+          toast.error(`Validation failed (${ve.length} issue${ve.length>1?"s":""}). First: ${ve[0].sheet} row ${ve[0].row_index} — ${ve[0].message}. See console for full list.`, { duration: 12000 });
+        } else {
+          toast.error("Seed failed: " + (data?.error || resp.statusText));
+        }
       } else {
         toast.success("Data loaded — you are now admin");
         await refreshRoles();
