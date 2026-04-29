@@ -84,6 +84,25 @@ export function validate(data: ParsedWorkbook): ValidationError[] {
   const siteIds = new Set(data.sites.map((r) => toStr(r.site_id)).filter(Boolean) as string[]);
   const cleanerIds = new Set(data.cleaners.map((r) => toStr(r.cleaner_id)).filter(Boolean) as string[]);
 
+  // Duplicate ID detection per sheet
+  const checkDup = (sheet: string, rows: SheetRow[], field: string) => {
+    const seen = new Map<string, number>();
+    rows.forEach((r, i) => {
+      const v = toStr(r[field]);
+      if (!v) return;
+      if (seen.has(v)) {
+        errors.push({ sheet, row_index: i + 2, field, value: v, message: `Duplicate ${field} '${v}' (also at row ${seen.get(v)})` });
+      } else {
+        seen.set(v, i + 2);
+      }
+    });
+  };
+  checkDup("Sites", data.sites, "site_id");
+  checkDup("Cleaners", data.cleaners, "cleaner_id");
+  checkDup("Schedule", data.schedule, "schedule_id");
+  checkDup("Closures", data.closures, "closure_id");
+  checkDup("Delivery_Log", data.delivery_log, "delivery_id");
+
   data.sites.forEach((r, i) => {
     if (!toStr(r.site_id)) errors.push({ sheet: "Sites", row_index: i + 2, field: "site_id", value: r.site_id, message: "site_id is required" });
   });
