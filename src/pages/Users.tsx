@@ -11,22 +11,22 @@ import { toast } from "sonner";
 
 export default function Users() {
   const [members, setMembers] = useState<any[]>([]);
-  const [sites, setSites] = useState<any[]>([]);
-  const [cleaners, setCleaners] = useState<any[]>([]);
   const [email, setEmail] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [role, setRole] = useState<"admin" | "cleaner" | "client">("cleaner");
-  const [cleanerId, setCleanerId] = useState<string>("");
-  const [siteId, setSiteId] = useState<string>("");
+  const [role, setRole] = useState<"admin" | "staff">("staff");
   const [busy, setBusy] = useState(false);
 
   const refresh = async () => {
-    const { data: roles } = await supabase.from("user_roles").select("user_id, role, cleaner_id, site_id");
-    const ids = Array.from(new Set((roles ?? []).map((r) => r.user_id)));
-    const { data: profs } = await supabase.from("profiles").select("id,email,display_name").in("id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"]);
+    const { data: roles } = await supabase.from("user_roles").select("user_id, role");
+    const list = (roles ?? []) as { user_id: string; role: string }[];
+    const ids = Array.from(new Set(list.map((r) => r.user_id)));
+    const { data: profs } = await supabase
+      .from("profiles")
+      .select("id,email,display_name")
+      .in("id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"]);
     const pMap = new Map((profs ?? []).map((p) => [p.id, p]));
     const grouped = new Map<string, any>();
-    (roles ?? []).forEach((r) => {
+    list.forEach((r) => {
       const cur = grouped.get(r.user_id) ?? { user_id: r.user_id, profile: pMap.get(r.user_id), roles: [] };
       cur.roles.push(r);
       grouped.set(r.user_id, cur);
@@ -34,24 +34,18 @@ export default function Users() {
     setMembers(Array.from(grouped.values()));
   };
 
-  useEffect(() => {
-    refresh();
-    supabase.from("sites").select("site_id,client_name").order("client_name").then(({ data }) => setSites(data ?? []));
-    supabase.from("cleaners").select("cleaner_id,name").order("name").then(({ data }) => setCleaners(data ?? []));
-  }, []);
+  useEffect(() => { refresh(); }, []);
 
   const invite = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (role === "cleaner" && !cleanerId) return toast.error("Pick a cleaner to link to");
-    if (role === "client" && !siteId) return toast.error("Pick a site to link to");
     setBusy(true);
     const { data, error } = await supabase.functions.invoke("invite-user", {
-      body: { email, role, display_name: displayName || undefined, cleaner_id: role === "cleaner" ? cleanerId : null, site_id: role === "client" ? siteId : null },
+      body: { email, role, display_name: displayName || undefined },
     });
     setBusy(false);
     if (error || (data as any)?.error) return toast.error((error?.message || JSON.stringify((data as any)?.error)) ?? "Invite failed");
     toast.success("Invite sent");
-    setEmail(""); setDisplayName(""); setCleanerId(""); setSiteId("");
+    setEmail(""); setDisplayName("");
     refresh();
   };
 
@@ -69,28 +63,11 @@ export default function Users() {
               <Select value={role} onValueChange={(v: any) => setRole(v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="cleaner">Cleaner</SelectItem>
-                  <SelectItem value="client">Client</SelectItem>
+                  <SelectItem value="staff">Staff (read-only)</SelectItem>
+                  <SelectItem value="admin">Admin (owner)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            {role === "cleaner" && (
-              <div className="space-y-1"><Label>Link to cleaner</Label>
-                <Select value={cleanerId} onValueChange={setCleanerId}>
-                  <SelectTrigger><SelectValue placeholder="Pick cleaner" /></SelectTrigger>
-                  <SelectContent>{cleaners.map((c) => <SelectItem key={c.cleaner_id} value={c.cleaner_id}>{c.name ?? c.cleaner_id}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-            )}
-            {role === "client" && (
-              <div className="space-y-1"><Label>Link to site</Label>
-                <Select value={siteId} onValueChange={setSiteId}>
-                  <SelectTrigger><SelectValue placeholder="Pick site" /></SelectTrigger>
-                  <SelectContent>{sites.map((s) => <SelectItem key={s.site_id} value={s.site_id}>{s.client_name ?? s.site_id}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-            )}
             <div className="md:col-span-2"><Button type="submit" disabled={busy}>{busy ? "Sending…" : "Send invite"}</Button></div>
           </form>
         </CardContent>
@@ -108,9 +85,7 @@ export default function Users() {
                   <TableCell>{m.profile?.display_name ?? "—"}</TableCell>
                   <TableCell className="space-x-1">
                     {m.roles.map((r: any, i: number) => (
-                      <Badge key={i} variant={r.role === "admin" ? "default" : "secondary"}>
-                        {r.role}{r.cleaner_id ? ` · ${r.cleaner_id}` : ""}{r.site_id ? ` · ${r.site_id}` : ""}
-                      </Badge>
+                      <Badge key={i} variant={r.role === "admin" ? "default" : "secondary"}>{r.role}</Badge>
                     ))}
                   </TableCell>
                 </TableRow>
