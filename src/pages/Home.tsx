@@ -8,7 +8,7 @@ import { Building2, Users, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Home() {
-  const { user, isAdmin, isCleaner, isClient, refreshRoles } = useAuth();
+  const { user, isAdmin, refreshRoles } = useAuth();
   const [counts, setCounts] = useState<{ sites: number; cleaners: number; schedule: number } | null>(null);
   const [hasVersion, setHasVersion] = useState<boolean | null>(null);
   const [seeding, setSeeding] = useState(false);
@@ -67,7 +67,7 @@ export default function Home() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Welcome{user?.email ? `, ${user.email}` : ""}</h1>
         <p className="text-sm text-muted-foreground">
-          Role: {isAdmin ? "Admin" : isCleaner ? "Cleaner" : isClient ? "Client" : "No role assigned — ask an admin"}
+          Role: {isAdmin ? "Admin (owner)" : "Staff"}
         </p>
       </div>
 
