@@ -13,10 +13,21 @@ export default function SetPassword() {
   const [pw, setPw] = useState("");
   const [pw2, setPw2] = useState("");
   const [ready, setReady] = useState(false);
+  const [checking, setChecking] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setReady(!!data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) setReady(true);
+      setChecking(false);
+    });
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) setReady(true);
+      setChecking(false);
+    });
+
+    return () => sub.subscription.unsubscribe();
   }, []);
 
   const submit = async (e: React.FormEvent) => {
