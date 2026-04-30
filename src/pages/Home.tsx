@@ -82,6 +82,11 @@ export default function Home() {
           <p className="mt-1 text-sm text-primary-foreground/80">
             Signed in as <span className="font-medium">{isAdmin ? "Admin (owner)" : "Staff"}</span>
           </p>
+          <div className="mt-4">
+            <Button asChild variant="secondary" size="sm">
+              <Link to="/today"><CalendarClock className="mr-2 h-4 w-4" />View today's schedule</Link>
+            </Button>
+          </div>
         </div>
       </div>
 

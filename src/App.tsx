@@ -11,6 +11,7 @@ import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
 import SetPassword from "@/pages/SetPassword";
 import Home from "@/pages/Home";
+import Today from "@/pages/Today";
 import SitesList from "@/pages/SitesList";
 import SiteDetail from "@/pages/SiteDetail";
 import CleanersList from "@/pages/CleanersList";
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/set-password" element={<SetPassword />} />
             <Route element={<RequireAuth><AppShell /></RequireAuth>}>
               <Route path="/" element={<Home />} />
+              <Route path="/today" element={<Today />} />
               <Route path="/sites" element={<SitesList />} />
               <Route path="/sites/:siteId" element={<SiteDetail />} />
               <Route path="/cleaners" element={<CleanersList />} />
