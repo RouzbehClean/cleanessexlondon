@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +7,34 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { downloadXlsx, isCurrent } from "@/lib/exports";
+import { AlertTriangle, CheckCircle2, XCircle, Clock } from "lucide-react";
+
+const DAY_ORDER = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+// "yes/y/true/1" → true. Empty/no → false. Unknown → null.
+function parseBool(v: any): boolean | null {
+  if (v === null || v === undefined || v === "") return null;
+  const s = String(v).trim().toLowerCase();
+  if (["yes", "y", "true", "1", "done", "ok"].includes(s)) return true;
+  if (["no", "n", "false", "0", "missing", "outstanding"].includes(s)) return false;
+  return null;
+}
+
+function complianceStatus(label: string, value: any, dateValue?: any) {
+  const b = parseBool(value);
+  // DBS expiry: warn if older than 3 years
+  let expiringSoon = false;
+  let expired = false;
+  if (label === "DBS" && dateValue) {
+    const d = new Date(dateValue);
+    if (!isNaN(d.getTime())) {
+      const months = (Date.now() - d.getTime()) / (1000 * 60 * 60 * 24 * 30);
+      if (months >= 36) expired = true;
+      else if (months >= 30) expiringSoon = true;
+    }
+  }
+  return { ok: b === true && !expired, missing: b === false || b === null, expired, expiringSoon, raw: value };
+}
 
 export default function CleanerDetail() {
   const { cleanerId = "" } = useParams();
@@ -26,16 +54,46 @@ export default function CleanerDetail() {
       const sMap = new Map((sites ?? []).map((s) => [s.site_id, s.client_name]));
       const { data: sch } = await supabase.from("schedule").select("*").eq("cleaner_id", cleanerId);
       setSchedule((sch ?? []).map((r: any) => ({ ...r, site_name: sMap.get(r.site_id) ?? r.site_id })));
-      const { data: dl } = await supabase.from("delivery_log").select("*").eq("cleaner_id", cleanerId).order("date", { ascending: false }).limit(100);
+      const { data: dl } = await supabase.from("delivery_log").select("*").eq("cleaner_id", cleanerId).order("date", { ascending: false }).limit(500);
       setDelivery((dl ?? []).map((r) => ({ ...r, site_name: sMap.get(r.site_id) ?? r.site_id })));
       setLoading(false);
     })();
   }, [cleanerId]);
 
+  const visible = useMemo(
+    () => (showHistorical ? schedule : schedule.filter((r) => isCurrent(r.effective_to))),
+    [schedule, showHistorical]
+  );
+
+  // Weekly scheduled summary
+  const weekly = useMemo(() => {
+    const current = schedule.filter((r) => isCurrent(r.effective_to));
+    let totalHours = 0;
+    let totalPay = 0;
+    const byDay: Record<string, number> = {};
+    const sites = new Set<string>();
+    current.forEach((r) => {
+      const h = Number(r.duration_hours) || 0;
+      totalHours += h;
+      totalPay += h * (Number(r.pay_rate) || 0);
+      const day = (r.day_of_week ?? "").slice(0, 3);
+      byDay[day] = (byDay[day] ?? 0) + h;
+      sites.add(r.site_id);
+    });
+    return { totalHours, totalPay, byDay, sites: sites.size, shifts: current.length };
+  }, [schedule]);
+
+  // Last 4 weeks delivery
+  const recentDelivery = useMemo(() => {
+    const now = new Date();
+    const fourWeeksAgo = new Date(now.getTime() - 28 * 24 * 60 * 60 * 1000);
+    const filt = delivery.filter((d) => d.date && new Date(d.date) >= fourWeeksAgo);
+    const total = filt.reduce((s, r) => s + (Number(r.hours_clocked) || 0), 0);
+    return { total, count: filt.length };
+  }, [delivery]);
+
   if (loading) return <div className="p-6 text-muted-foreground">Loading…</div>;
   if (!c) return <div className="p-6">Cleaner not found.</div>;
-
-  const visible = showHistorical ? schedule : schedule.filter((r) => isCurrent(r.effective_to));
 
   const exportTimesheet = () => {
     downloadXlsx(`${c.cleaner_id}-timesheet.xlsx`, [
@@ -45,6 +103,15 @@ export default function CleanerDetail() {
     ]);
   };
 
+  // Compliance items
+  const compliance = [
+    { label: "Right to work", ...complianceStatus("RTW", c.right_to_work_on_file) },
+    { label: "DBS", ...complianceStatus("DBS", c.dbs_done, c.dbs_date), date: c.dbs_date },
+    { label: "Safeguarding", ...complianceStatus("SG", c.safeguarding_done) },
+    { label: "PAT (own kit)", ...complianceStatus("PAT", c.pat_test_personal_kit) },
+  ];
+  const issuesCount = compliance.filter((x) => x.missing || x.expired || x.expiringSoon).length;
+
   return (
     <div className="space-y-6 p-6">
       <div>
@@ -52,10 +119,27 @@ export default function CleanerDetail() {
         <div className="mt-2 flex items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">{c.name ?? c.cleaner_id}</h1>
-            <p className="text-sm text-muted-foreground">{c.cleaner_id} · {c.region_primary ?? "—"}</p>
+            <p className="text-sm text-muted-foreground">
+              {c.cleaner_id} · {c.region_primary ?? "—"} · {c.employment_type ?? "—"}
+              {parseBool(c.active) === false && <Badge variant="outline" className="ml-2">Inactive</Badge>}
+              {parseBool(c.sub_nlw_flag) === true && <Badge variant="destructive" className="ml-2">Sub-NLW</Badge>}
+            </p>
           </div>
           <Button variant="outline" onClick={exportTimesheet}>Export Timesheet (Excel)</Button>
         </div>
+      </div>
+
+      {/* Summary cards */}
+      <div className="grid gap-3 md:grid-cols-4">
+        <SummaryCard label="Weekly hours" value={weekly.totalHours.toFixed(1)} sub={`${weekly.shifts} shifts · ${weekly.sites} sites`} />
+        {isAdmin && <SummaryCard label="Weekly pay" value={`£${weekly.totalPay.toFixed(2)}`} sub="Scheduled × pay rate" />}
+        <SummaryCard label="Last 4 weeks delivered" value={recentDelivery.total.toFixed(1)} sub={`${recentDelivery.count} visits`} />
+        <SummaryCard
+          label="Compliance"
+          value={issuesCount === 0 ? "All OK" : `${issuesCount} to fix`}
+          sub={issuesCount === 0 ? "Up to date" : "See compliance card"}
+          tone={issuesCount === 0 ? "ok" : "warn"}
+        />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -71,17 +155,56 @@ export default function CleanerDetail() {
             <Field label="Notes" v={c.notes} />
           </CardContent>
         </Card>
+
         <Card>
-          <CardHeader><CardTitle className="text-base">Compliance</CardTitle></CardHeader>
-          <CardContent className="space-y-1 text-sm">
-            <Field label="Right to work" v={c.right_to_work_on_file} />
-            <Field label="DBS done" v={c.dbs_done} />
-            <Field label="DBS date" v={c.dbs_date} />
-            <Field label="Safeguarding" v={c.safeguarding_done} />
-            <Field label="PAT (own kit)" v={c.pat_test_personal_kit} />
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              Compliance
+              {issuesCount > 0 && <Badge variant="destructive">{issuesCount}</Badge>}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            {compliance.map((item) => (
+              <div key={item.label} className="flex items-center justify-between border-b last:border-0 pb-1.5 last:pb-0">
+                <div className="flex items-center gap-2">
+                  {item.expired ? (
+                    <XCircle className="h-4 w-4 text-destructive" />
+                  ) : item.expiringSoon ? (
+                    <Clock className="h-4 w-4 text-amber-500" />
+                  ) : item.ok ? (
+                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                  ) : (
+                    <AlertTriangle className="h-4 w-4 text-amber-500" />
+                  )}
+                  <span>{item.label}</span>
+                  {(item as any).date && <span className="text-xs text-muted-foreground">· {(item as any).date}</span>}
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {item.expired ? "Expired" : item.expiringSoon ? "Expiring soon" : item.ok ? "OK" : item.raw ? String(item.raw) : "Missing"}
+                </span>
+              </div>
+            ))}
           </CardContent>
         </Card>
       </div>
+
+      {/* Weekly pattern */}
+      <Card>
+        <CardHeader><CardTitle className="text-base">Weekly pattern</CardTitle></CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-7 gap-2">
+            {DAY_ORDER.map((d) => {
+              const h = weekly.byDay[d] ?? 0;
+              return (
+                <div key={d} className={`rounded-md border p-2 text-center ${h > 0 ? "bg-muted/40" : ""}`}>
+                  <div className="text-xs text-muted-foreground">{d}</div>
+                  <div className={`mt-1 font-medium ${h > 0 ? "" : "text-muted-foreground"}`}>{h > 0 ? `${h.toFixed(1)}h` : "—"}</div>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
@@ -123,7 +246,7 @@ export default function CleanerDetail() {
             <TableHeader><TableRow><TableHead>Date</TableHead><TableHead>Site</TableHead><TableHead>Hours</TableHead></TableRow></TableHeader>
             <TableBody>
               {delivery.length === 0 && <TableRow><TableCell colSpan={3} className="text-muted-foreground">No records.</TableCell></TableRow>}
-              {delivery.map((r) => <TableRow key={r.pk}><TableCell>{r.date}</TableCell><TableCell>{r.site_name}</TableCell><TableCell>{r.hours_clocked}</TableCell></TableRow>)}
+              {delivery.slice(0, 100).map((r) => <TableRow key={r.pk}><TableCell>{r.date}</TableCell><TableCell>{r.site_name}</TableCell><TableCell>{r.hours_clocked}</TableCell></TableRow>)}
             </TableBody>
           </Table>
         </CardContent>
@@ -134,4 +257,16 @@ export default function CleanerDetail() {
 
 function Field({ label, v }: { label: string; v: any }) {
   return <div className="flex gap-2"><span className="w-32 shrink-0 text-muted-foreground">{label}</span><span>{v ?? "—"}</span></div>;
+}
+
+function SummaryCard({ label, value, sub, tone }: { label: string; value: string; sub?: string; tone?: "ok" | "warn" }) {
+  return (
+    <Card>
+      <CardContent className="p-4">
+        <div className="text-xs text-muted-foreground">{label}</div>
+        <div className={`mt-1 text-2xl font-semibold ${tone === "warn" ? "text-amber-600" : tone === "ok" ? "text-emerald-600" : ""}`}>{value}</div>
+        {sub && <div className="mt-0.5 text-xs text-muted-foreground">{sub}</div>}
+      </CardContent>
+    </Card>
+  );
 }
