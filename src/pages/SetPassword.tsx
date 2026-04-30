@@ -13,6 +13,7 @@ export default function SetPassword() {
   const [pw, setPw] = useState("");
   const [pw2, setPw2] = useState("");
   const [ready, setReady] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setReady(!!data.session));
@@ -22,7 +23,9 @@ export default function SetPassword() {
     e.preventDefault();
     if (pw !== pw2) return toast.error("Passwords don't match");
     if (pw.length < 8) return toast.error("Use at least 8 characters");
+    setSaving(true);
     const { error } = await supabase.auth.updateUser({ password: pw });
+    setSaving(false);
     if (error) return toast.error(error.message);
     toast.success("Password set");
     nav("/", { replace: true });
@@ -48,7 +51,7 @@ export default function SetPassword() {
                 <Label>Confirm password</Label>
                 <Input type="password" required value={pw2} onChange={(e) => setPw2(e.target.value)} />
               </div>
-              <Button type="submit" className="w-full">Save</Button>
+              <Button type="submit" className="w-full" disabled={saving}>{saving ? "Saving…" : "Save"}</Button>
             </form>
           )}
         </CardContent>
