@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Building2, Users, Upload } from "lucide-react";
+import { Building2, Users, Upload, CalendarClock, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Home() {
@@ -62,23 +62,37 @@ export default function Home() {
     }
   };
 
+  const stats = [
+    { label: "Sites", value: counts?.sites, to: "/sites", icon: Building2, gradient: "from-indigo-500 to-violet-500" },
+    { label: "Cleaners", value: counts?.cleaners, to: "/cleaners", icon: Users, gradient: "from-teal-500 to-cyan-500" },
+    { label: "Schedule rows", value: counts?.schedule, to: null, icon: CalendarClock, gradient: "from-amber-500 to-orange-500" },
+  ];
+
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Welcome{user?.email ? `, ${user.email}` : ""}</h1>
-        <p className="text-sm text-muted-foreground">
-          Role: {isAdmin ? "Admin (owner)" : "Staff"}
-        </p>
+    <div className="mx-auto max-w-6xl space-y-8 p-6 md:p-8">
+      {/* Hero */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-primary p-8 text-primary-foreground shadow-elegant">
+        <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-accent/30 blur-3xl" />
+        <div className="relative">
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground/70">Dashboard</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight">
+            Welcome back{user?.email ? `, ${user.email.split("@")[0]}` : ""}
+          </h1>
+          <p className="mt-1 text-sm text-primary-foreground/80">
+            Signed in as <span className="font-medium">{isAdmin ? "Admin (owner)" : "Staff"}</span>
+          </p>
+        </div>
       </div>
 
       {hasVersion === false && (
-        <Card className="border-dashed">
+        <Card className="border-dashed border-accent/50 bg-accent/5">
           <CardHeader>
-            <CardTitle>First-time setup</CardTitle>
+            <CardTitle className="text-base">First-time setup</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              No data has been loaded yet. Upload <code>Master_Inventory_v9_2904.xlsx</code> to seed v1 and become the first admin.
+              No data has been loaded yet. Upload <code className="rounded bg-muted px-1 py-0.5 text-xs">Master_Inventory_v9_2904.xlsx</code> to seed v1 and become the first admin.
             </p>
             <input
               ref={fileRef}
@@ -94,16 +108,38 @@ export default function Home() {
         </Card>
       )}
 
+      {/* Stat cards */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Link to="/sites"><Card className="transition hover:shadow-md"><CardHeader><CardTitle className="flex items-center gap-2 text-base"><Building2 className="h-4 w-4" />Sites</CardTitle></CardHeader><CardContent><div className="text-3xl font-semibold">{counts?.sites ?? "—"}</div></CardContent></Card></Link>
-        <Link to="/cleaners"><Card className="transition hover:shadow-md"><CardHeader><CardTitle className="flex items-center gap-2 text-base"><Users className="h-4 w-4" />Cleaners</CardTitle></CardHeader><CardContent><div className="text-3xl font-semibold">{counts?.cleaners ?? "—"}</div></CardContent></Card></Link>
-        <Card><CardHeader><CardTitle className="flex items-center gap-2 text-base">Schedule rows</CardTitle></CardHeader><CardContent><div className="text-3xl font-semibold">{counts?.schedule ?? "—"}</div></CardContent></Card>
+        {stats.map((s) => {
+          const Icon = s.icon;
+          const inner = (
+            <Card className="group h-full overflow-hidden border-border/60 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-elegant">
+              <CardContent className="p-5">
+                <div className="flex items-start justify-between">
+                  <div className={`flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${s.gradient} text-white shadow-md`}>
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  {s.to && (
+                    <ArrowRight className="h-4 w-4 text-muted-foreground/60 transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
+                  )}
+                </div>
+                <div className="mt-4 text-3xl font-semibold tracking-tight">{s.value ?? "—"}</div>
+                <div className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">{s.label}</div>
+              </CardContent>
+            </Card>
+          );
+          return s.to ? <Link key={s.label} to={s.to}>{inner}</Link> : <div key={s.label}>{inner}</div>;
+        })}
       </div>
 
       {isAdmin && (
-        <Card>
-          <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Upload className="h-4 w-4" />Admin shortcuts</CardTitle></CardHeader>
-          <CardContent className="flex gap-2">
+        <Card className="border-border/60 shadow-soft">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Upload className="h-4 w-4 text-accent" />Admin shortcuts
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
             <Button asChild variant="outline"><Link to="/uploads">Upload new version</Link></Button>
             <Button asChild variant="outline"><Link to="/users">Invite team member</Link></Button>
           </CardContent>

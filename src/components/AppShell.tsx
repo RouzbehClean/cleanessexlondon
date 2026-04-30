@@ -1,22 +1,31 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
-import { Building2, Users, Upload, UserCog, LogOut, Home } from "lucide-react";
+import { Building2, Users, Upload, UserCog, LogOut, Home, Sparkles } from "lucide-react";
 
 export default function AppShell() {
   const { isAdmin, signOut, user } = useAuth();
   const nav = useNavigate();
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-      isActive ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+    `flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all ${
+      isActive
+        ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm"
+        : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
     }`;
 
+  const initials = (user?.email ?? "?").slice(0, 2).toUpperCase();
+
   return (
-    <div className="flex min-h-screen bg-background">
-      <aside className="hidden w-60 shrink-0 border-r bg-card md:flex md:flex-col">
-        <div className="border-b p-4">
-          <Link to="/" className="text-lg font-semibold tracking-tight">Sterling Ops</Link>
+    <div className="flex min-h-screen bg-gradient-surface">
+      <aside className="hidden w-64 shrink-0 flex-col bg-sidebar text-sidebar-foreground md:flex">
+        <div className="flex items-center gap-2 border-b border-sidebar-border px-5 py-5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-accent shadow-elegant">
+            <Sparkles className="h-5 w-5 text-accent-foreground" />
+          </div>
+          <Link to="/" className="text-base font-semibold tracking-tight text-sidebar-accent-foreground">
+            Sterling Ops
+          </Link>
         </div>
         <nav className="flex-1 space-y-1 p-3">
           <NavLink to="/" end className={linkClass}><Home className="h-4 w-4" />Home</NavLink>
@@ -25,9 +34,24 @@ export default function AppShell() {
           {isAdmin && <NavLink to="/uploads" className={linkClass}><Upload className="h-4 w-4" />Uploads</NavLink>}
           {isAdmin && <NavLink to="/users" className={linkClass}><UserCog className="h-4 w-4" />Users</NavLink>}
         </nav>
-        <div className="border-t p-3">
-          <div className="mb-2 truncate px-2 text-xs text-muted-foreground">{user?.email}</div>
-          <Button variant="ghost" size="sm" className="w-full justify-start" onClick={async () => { await signOut(); nav("/login"); }}>
+        <div className="border-t border-sidebar-border p-3">
+          <div className="mb-2 flex items-center gap-2 rounded-md px-2 py-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sidebar-primary text-xs font-semibold text-sidebar-primary-foreground">
+              {initials}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-xs text-sidebar-foreground/90">{user?.email}</div>
+              <div className="text-[10px] uppercase tracking-wider text-sidebar-foreground/50">
+                {isAdmin ? "Admin" : "Staff"}
+              </div>
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            onClick={async () => { await signOut(); nav("/login"); }}
+          >
             <LogOut className="mr-2 h-4 w-4" />Sign out
           </Button>
         </div>
