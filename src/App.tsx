@@ -7,6 +7,8 @@ import { AuthProvider } from "@/lib/auth";
 import { RequireAuth, RequireAdmin } from "@/lib/guards";
 import AppShell from "@/components/AppShell";
 import Login from "@/pages/Login";
+import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
 import SetPassword from "@/pages/SetPassword";
 import Home from "@/pages/Home";
 import SitesList from "@/pages/SitesList";
@@ -28,6 +30,8 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/set-password" element={<SetPassword />} />
             <Route element={<RequireAuth><AppShell /></RequireAuth>}>
               <Route path="/" element={<Home />} />
