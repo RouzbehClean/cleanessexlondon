@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
@@ -50,6 +51,11 @@ export default function Login() {
             <div className="space-y-1">
               <Label htmlFor="password">Password</Label>
               <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+            </div>
+            <div className="text-right">
+              <Button asChild variant="link" className="h-auto p-0 text-xs">
+                <Link to="/forgot-password">Forgot password?</Link>
+              </Button>
             </div>
             <Button type="submit" className="w-full" disabled={loading}>Sign in</Button>
           </form>
