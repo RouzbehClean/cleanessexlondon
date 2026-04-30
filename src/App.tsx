@@ -13,6 +13,8 @@ import SetPassword from "@/pages/SetPassword";
 import Home from "@/pages/Home";
 import Today from "@/pages/Today";
 import Week from "@/pages/Week";
+import Delivery from "@/pages/Delivery";
+import Closures from "@/pages/Closures";
 import SitesList from "@/pages/SitesList";
 import SiteDetail from "@/pages/SiteDetail";
 import CleanersList from "@/pages/CleanersList";
@@ -39,6 +41,8 @@ const App = () => (
               <Route path="/" element={<Home />} />
               <Route path="/today" element={<Today />} />
               <Route path="/week" element={<Week />} />
+              <Route path="/delivery" element={<Delivery />} />
+              <Route path="/closures" element={<RequireAdmin><Closures /></RequireAdmin>} />
               <Route path="/sites" element={<SitesList />} />
               <Route path="/sites/:siteId" element={<SiteDetail />} />
               <Route path="/cleaners" element={<CleanersList />} />
