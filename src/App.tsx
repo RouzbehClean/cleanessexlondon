@@ -15,6 +15,8 @@ import Today from "@/pages/Today";
 import Week from "@/pages/Week";
 import Delivery from "@/pages/Delivery";
 import Closures from "@/pages/Closures";
+import Alerts from "@/pages/Alerts";
+import Reports from "@/pages/Reports";
 import SitesList from "@/pages/SitesList";
 import SiteDetail from "@/pages/SiteDetail";
 import CleanersList from "@/pages/CleanersList";
@@ -42,6 +44,8 @@ const App = () => (
               <Route path="/today" element={<Today />} />
               <Route path="/week" element={<Week />} />
               <Route path="/delivery" element={<Delivery />} />
+              <Route path="/alerts" element={<Alerts />} />
+              <Route path="/reports" element={<Reports />} />
               <Route path="/closures" element={<RequireAdmin><Closures /></RequireAdmin>} />
               <Route path="/sites" element={<SitesList />} />
               <Route path="/sites/:siteId" element={<SiteDetail />} />
