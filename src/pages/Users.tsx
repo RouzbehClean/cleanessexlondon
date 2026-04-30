@@ -58,7 +58,7 @@ export default function Users() {
     });
     setBusy(false);
     if (error || (data as any)?.error) return toast.error((error?.message || JSON.stringify((data as any)?.error)) ?? "Invite failed");
-    toast.success("Invite sent");
+    toast.success((data as any)?.already_registered ? "Password reset sent" : "Invite sent");
     setEmail(""); setDisplayName("");
     refresh();
   };
