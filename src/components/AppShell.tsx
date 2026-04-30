@@ -18,13 +18,13 @@ export default function AppShell() {
 
   return (
     <div className="flex min-h-screen bg-gradient-surface">
-      <aside className="hidden w-64 shrink-0 flex-col bg-sidebar text-sidebar-foreground md:flex">
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground md:flex">
         <div className="flex items-center gap-2 border-b border-sidebar-border px-5 py-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-accent shadow-elegant">
-            <Sparkles className="h-5 w-5 text-accent-foreground" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-primary shadow-elegant">
+            <Sparkles className="h-5 w-5 text-primary-foreground" />
           </div>
-          <Link to="/" className="text-base font-semibold tracking-tight text-sidebar-accent-foreground">
-            Sterling Ops
+          <Link to="/" className="text-base font-semibold tracking-tight text-foreground">
+            Clean Ops
           </Link>
         </div>
         <nav className="flex-1 space-y-1 p-3">

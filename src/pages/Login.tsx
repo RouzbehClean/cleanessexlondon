@@ -42,10 +42,10 @@ export default function Login() {
       <Card className="w-full max-w-sm border-border/60 shadow-elegant">
         <CardHeader className="space-y-3 text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-primary shadow-elegant">
-            <span className="text-lg font-bold text-primary-foreground">S</span>
+            <span className="text-lg font-bold text-primary-foreground">C</span>
           </div>
           <div className="space-y-1">
-            <CardTitle className="text-xl">Sterling Ops</CardTitle>
+            <CardTitle className="text-xl">Clean Ops</CardTitle>
             <CardDescription>Sign in to continue</CardDescription>
           </div>
         </CardHeader>
