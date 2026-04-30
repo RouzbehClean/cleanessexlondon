@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { AlertTriangle, ShieldAlert, CalendarX, UserX, Wrench, FileWarning } from "lucide-react";
+import { AlertTriangle, ShieldAlert, CalendarX, UserX, Wrench, FileWarning, Building2 as Building2Outline } from "lucide-react";
 
 function isoDate(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -280,5 +280,3 @@ function Empty({ msg }: { msg: string }) {
   return <div className="py-8 text-center text-sm text-muted-foreground">{msg}</div>;
 }
 
-// Re-import to avoid name clash
-import { Building2 as Building2Outline } from "lucide-react";
