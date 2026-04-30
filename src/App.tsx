@@ -12,6 +12,7 @@ import ResetPassword from "@/pages/ResetPassword";
 import SetPassword from "@/pages/SetPassword";
 import Home from "@/pages/Home";
 import Today from "@/pages/Today";
+import Week from "@/pages/Week";
 import SitesList from "@/pages/SitesList";
 import SiteDetail from "@/pages/SiteDetail";
 import CleanersList from "@/pages/CleanersList";
@@ -37,6 +38,7 @@ const App = () => (
             <Route element={<RequireAuth><AppShell /></RequireAuth>}>
               <Route path="/" element={<Home />} />
               <Route path="/today" element={<Today />} />
+              <Route path="/week" element={<Week />} />
               <Route path="/sites" element={<SitesList />} />
               <Route path="/sites/:siteId" element={<SiteDetail />} />
               <Route path="/cleaners" element={<CleanersList />} />
