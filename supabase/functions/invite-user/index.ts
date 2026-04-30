@@ -53,10 +53,8 @@ Deno.serve(async (req) => {
 
     await admin.from("profiles").upsert({ id: userId, email, display_name: display_name ?? email });
 
-    const { error: rErr } = await admin.from("user_roles").upsert(
-      { user_id: userId, role },
-      { onConflict: "user_id,role" },
-    );
+    await admin.from("user_roles").delete().eq("user_id", userId);
+    const { error: rErr } = await admin.from("user_roles").insert({ user_id: userId, role });
     if (rErr) return json({ error: rErr.message }, 500);
 
     return json({ ok: true, user_id: userId });
