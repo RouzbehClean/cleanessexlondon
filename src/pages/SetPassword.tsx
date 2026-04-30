@@ -50,8 +50,10 @@ export default function SetPassword() {
           <CardDescription>Welcome — pick a password to finish setting up your account.</CardDescription>
         </CardHeader>
         <CardContent>
-          {!ready ? (
+          {checking ? (
             <p className="text-sm text-muted-foreground">Verifying your invite…</p>
+          ) : !ready ? (
+            <p className="text-sm text-muted-foreground">This invite link is invalid or expired. Ask an admin to re-send it.</p>
           ) : (
             <form onSubmit={submit} className="space-y-3">
               <div className="space-y-1">
