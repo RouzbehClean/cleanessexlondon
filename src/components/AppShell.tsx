@@ -1,7 +1,7 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
-import { Building2, Users, Upload, UserCog, LogOut, Home, Sparkles, CalendarDays } from "lucide-react";
+import { Building2, Users, Upload, UserCog, LogOut, Home, Sparkles, CalendarDays, CalendarRange } from "lucide-react";
 
 export default function AppShell() {
   const { isAdmin, signOut, user } = useAuth();
@@ -30,6 +30,7 @@ export default function AppShell() {
         <nav className="flex-1 space-y-1 p-3">
           <NavLink to="/" end className={linkClass}><Home className="h-4 w-4" />Home</NavLink>
           <NavLink to="/today" className={linkClass}><CalendarDays className="h-4 w-4" />Today</NavLink>
+          <NavLink to="/week" className={linkClass}><CalendarRange className="h-4 w-4" />Week</NavLink>
           <NavLink to="/sites" className={linkClass}><Building2 className="h-4 w-4" />Sites</NavLink>
           <NavLink to="/cleaners" className={linkClass}><Users className="h-4 w-4" />Cleaners</NavLink>
           {isAdmin && <NavLink to="/uploads" className={linkClass}><Upload className="h-4 w-4" />Uploads</NavLink>}
