@@ -7,14 +7,28 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 
 export default function Users() {
+  const { user } = useAuth();
   const [members, setMembers] = useState<any[]>([]);
   const [email, setEmail] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [role, setRole] = useState<"admin" | "staff">("staff");
   const [busy, setBusy] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const refresh = async () => {
     const { data: roles } = await supabase.from("user_roles").select("user_id, role");
@@ -49,6 +63,18 @@ export default function Users() {
     refresh();
   };
 
+  const deleteMember = async (userId: string) => {
+    setDeletingId(userId);
+    const { data, error } = await supabase.functions.invoke("delete-user", {
+      body: { user_id: userId },
+    });
+    setDeletingId(null);
+
+    if (error || (data as any)?.error) return toast.error((error?.message || (data as any)?.error) ?? "Delete failed");
+    toast.success("Account deleted");
+    refresh();
+  };
+
   return (
     <div className="space-y-6 p-6">
       <h1 className="text-2xl font-semibold tracking-tight">Users & roles</h1>
@@ -77,7 +103,7 @@ export default function Users() {
         <CardHeader><CardTitle className="text-base">Members</CardTitle></CardHeader>
         <CardContent>
           <Table>
-            <TableHeader><TableRow><TableHead>Email</TableHead><TableHead>Name</TableHead><TableHead>Roles</TableHead></TableRow></TableHeader>
+            <TableHeader><TableRow><TableHead>Email</TableHead><TableHead>Name</TableHead><TableHead>Roles</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
             <TableBody>
               {members.map((m) => (
                 <TableRow key={m.user_id}>
@@ -87,6 +113,29 @@ export default function Users() {
                     {m.roles.map((r: any, i: number) => (
                       <Badge key={i} variant={r.role === "admin" ? "default" : "secondary"}>{r.role}</Badge>
                     ))}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="sm" disabled={m.user_id === user?.id || deletingId === m.user_id}>
+                          {deletingId === m.user_id ? "Deleting…" : "Delete"}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete this account?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This removes {m.profile?.email ?? "this member"} from authentication, roles, and profiles. You can invite them again afterwards.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => deleteMember(m.user_id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                            Delete account
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </TableCell>
                 </TableRow>
               ))}
