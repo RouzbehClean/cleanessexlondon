@@ -64,7 +64,7 @@ export default function SetPassword() {
           <div className="space-y-1">
             <CardTitle className="text-xl">Set your password</CardTitle>
             <CardDescription>
-              Welcome to <span className="font-medium text-foreground">Sterling Ops</span>. Create a password to finish setting up your account.
+              Welcome to <span className="font-medium text-foreground">Clean Ops</span>. Create a password to finish setting up your account.
             </CardDescription>
           </div>
         </CardHeader>
