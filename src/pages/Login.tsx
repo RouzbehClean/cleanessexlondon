@@ -35,11 +35,19 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/30 p-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Sterling Ops</CardTitle>
-          <CardDescription>Sign in to continue</CardDescription>
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-surface p-4">
+      <div className="pointer-events-none absolute -top-32 -left-32 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-32 -right-32 h-80 w-80 rounded-full bg-accent/20 blur-3xl" />
+
+      <Card className="w-full max-w-sm border-border/60 shadow-elegant">
+        <CardHeader className="space-y-3 text-center">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-primary shadow-elegant">
+            <span className="text-lg font-bold text-primary-foreground">S</span>
+          </div>
+          <div className="space-y-1">
+            <CardTitle className="text-xl">Sterling Ops</CardTitle>
+            <CardDescription>Sign in to continue</CardDescription>
+          </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={signIn} className="space-y-3">
@@ -56,9 +64,13 @@ export default function Login() {
                 <Link to="/forgot-password">Forgot password?</Link>
               </Button>
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>Sign in</Button>
+            <Button type="submit" className="w-full" disabled={loading}>{loading ? "Signing in…" : "Sign in"}</Button>
           </form>
-          <div className="my-3 text-center text-xs text-muted-foreground">or</div>
+          <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
+            <div className="h-px flex-1 bg-border" />
+            <span>or</span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
           <Button variant="outline" className="w-full" onClick={google}>Continue with Google</Button>
           <p className="mt-4 text-center text-xs text-muted-foreground">
             Access is invite-only. Contact an admin if you need an account.
