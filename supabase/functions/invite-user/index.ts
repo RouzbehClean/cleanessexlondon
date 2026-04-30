@@ -35,6 +35,7 @@ Deno.serve(async (req) => {
     const { email, role, display_name } = parsed.data;
 
     const redirectTo = req.headers.get("origin") || undefined;
+    let alreadyRegistered = false;
     const { data: invited, error: invErr } = await admin.auth.admin.inviteUserByEmail(email, {
       data: { display_name: display_name ?? email },
       redirectTo: redirectTo ? `${redirectTo}/set-password` : undefined,
@@ -43,6 +44,7 @@ Deno.serve(async (req) => {
     let userId: string | null = invited?.user?.id ?? null;
     if (invErr) {
       if (/already/i.test(invErr.message)) {
+        alreadyRegistered = true;
         const { data: list } = await admin.auth.admin.listUsers();
         userId = list.users.find((u) => u.email?.toLowerCase() === email.toLowerCase())?.id ?? null;
       } else {
@@ -57,7 +59,14 @@ Deno.serve(async (req) => {
     const { error: rErr } = await admin.from("user_roles").insert({ user_id: userId, role });
     if (rErr) return json({ error: rErr.message }, 500);
 
-    return json({ ok: true, user_id: userId });
+    if (alreadyRegistered && redirectTo) {
+      const { error: resetErr } = await admin.auth.resetPasswordForEmail(email, {
+        redirectTo: `${redirectTo}/reset-password`,
+      });
+      if (resetErr) return json({ error: resetErr.message }, 500);
+    }
+
+    return json({ ok: true, user_id: userId, already_registered: alreadyRegistered });
   } catch (e) {
     return json({ error: (e as Error).message }, 500);
   }
