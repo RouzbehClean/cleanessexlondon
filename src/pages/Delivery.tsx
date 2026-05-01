@@ -196,6 +196,7 @@ export default function Delivery() {
             <p className="mt-1 text-sm text-primary-foreground/80">Comparing planned shifts against logged hours.</p>
           </div>
           <div className="flex items-center gap-2">
+            <Button variant="secondary" size="sm" onClick={openCreate}><Plus className="mr-1 h-4 w-4" />Log entry</Button>
             <Button variant="secondary" size="sm" onClick={() => setAnchor(addDays(weekStart, -7))}><ChevronLeft className="h-4 w-4" /></Button>
             <Button variant="secondary" size="sm" onClick={() => setAnchor(new Date())}><CalendarDays className="mr-1 h-4 w-4" />This week</Button>
             <Button variant="secondary" size="sm" onClick={() => setAnchor(addDays(weekStart, 7))}><ChevronRight className="h-4 w-4" /></Button>
