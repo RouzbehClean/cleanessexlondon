@@ -4,16 +4,22 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Plus, Pencil, Trash2, CalendarOff } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import EntityFormDialog, { FieldDef } from "@/components/EntityFormDialog";
+import DeleteOverrideDialog from "@/components/DeleteOverrideDialog";
+import { newEntityId } from "@/lib/overrides";
+import { useAuth } from "@/lib/auth";
 
 const TYPES = ["Bank holiday", "School break", "Site closure", "Other"];
+
+const FIELDS: FieldDef[] = [
+  { key: "closure_id", label: "ID", required: true, half: true, disabled: false },
+  { key: "date", label: "Date", type: "date", required: true, half: true },
+  { key: "type", label: "Type", type: "select", options: TYPES, half: true },
+  { key: "affects", label: "Affects", placeholder: "All, All schools, or SITE-xxx, SITE-yyy", half: true },
+  { key: "description", label: "Description", type: "textarea" },
+];
 
 function isoDate(d: Date) {
   const y = d.getFullYear();
@@ -23,84 +29,40 @@ function isoDate(d: Date) {
 }
 
 type Closure = {
-  pk: string;
-  closure_id: string;
-  date: string | null;
-  type: string | null;
-  affects: string | null;
-  description: string | null;
-  version_id: string;
+  pk: string; closure_id: string; date: string | null;
+  type: string | null; affects: string | null; description: string | null;
+  is_overridden?: boolean;
 };
 
 export default function Closures() {
-  const { toast } = useToast();
+  const { isAdmin } = useAuth();
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<Closure[]>([]);
-  const [activeVersion, setActiveVersion] = useState<string | null>(null);
   const [filter, setFilter] = useState<"upcoming" | "past" | "all">("upcoming");
   const [search, setSearch] = useState("");
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Closure | null>(null);
-  const [form, setForm] = useState({ closure_id: "", date: isoDate(new Date()), type: "Bank holiday", affects: "All", description: "" });
-  const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<Closure | null>(null);
 
   const todayIso = isoDate(new Date());
 
   async function load() {
     setLoading(true);
-    const [v, c] = await Promise.all([
-      supabase.from("data_versions").select("id").eq("is_active", true).maybeSingle(),
-      supabase.from("closures").select("*").order("date", { ascending: true }),
-    ]);
-    setActiveVersion(v.data?.id ?? null);
-    setRows((c.data ?? []) as Closure[]);
+    const { data } = await supabase.from("closures_live" as any).select("*").order("date", { ascending: true });
+    setRows((data ?? []) as Closure[]);
     setLoading(false);
   }
   useEffect(() => { load(); }, []);
 
   function openCreate() {
-    setEditing(null);
-    setForm({ closure_id: `CLS-${Date.now().toString(36).toUpperCase().slice(-6)}`, date: isoDate(new Date()), type: "Bank holiday", affects: "All", description: "" });
+    setEditing({
+      pk: "", closure_id: newEntityId("CLS"), date: isoDate(new Date()),
+      type: "Bank holiday", affects: "All", description: "",
+    });
     setOpen(true);
   }
-  function openEdit(r: Closure) {
-    setEditing(r);
-    setForm({ closure_id: r.closure_id, date: r.date ?? isoDate(new Date()), type: r.type ?? "Other", affects: r.affects ?? "All", description: r.description ?? "" });
-    setOpen(true);
-  }
-
-  async function save() {
-    if (!activeVersion) { toast({ title: "No active data version", variant: "destructive" }); return; }
-    if (!form.closure_id.trim() || !form.date) { toast({ title: "ID and date are required", variant: "destructive" }); return; }
-    setSaving(true);
-    const payload = {
-      closure_id: form.closure_id.trim(),
-      date: form.date,
-      type: form.type,
-      affects: form.affects.trim() || "All",
-      description: form.description.trim() || null,
-      version_id: activeVersion,
-    };
-    const res = editing
-      ? await supabase.from("closures").update(payload).eq("pk", editing.pk)
-      : await supabase.from("closures").insert(payload);
-    setSaving(false);
-    if (res.error) { toast({ title: "Save failed", description: res.error.message, variant: "destructive" }); return; }
-    toast({ title: editing ? "Closure updated" : "Closure added" });
-    setOpen(false);
-    load();
-  }
-
-  async function doDelete() {
-    if (!confirmDelete) return;
-    const res = await supabase.from("closures").delete().eq("pk", confirmDelete.pk);
-    if (res.error) { toast({ title: "Delete failed", description: res.error.message, variant: "destructive" }); return; }
-    toast({ title: "Closure removed" });
-    setConfirmDelete(null);
-    load();
-  }
+  function openEdit(r: Closure) { setEditing(r); setOpen(true); }
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -114,6 +76,11 @@ export default function Closures() {
       return true;
     });
   }, [rows, filter, search, todayIso]);
+
+  // For edits, lock the ID field (can't be changed)
+  const editFields: FieldDef[] = editing && editing.pk
+    ? FIELDS.map((f) => f.key === "closure_id" ? { ...f, disabled: true } : f)
+    : FIELDS;
 
   return (
     <div className="mx-auto max-w-[1200px] space-y-6 p-6 md:p-8">
@@ -148,7 +115,7 @@ export default function Closures() {
                 <TableHead className="w-[140px]">Type</TableHead>
                 <TableHead className="w-[160px]">Affects</TableHead>
                 <TableHead className="w-[110px]">ID</TableHead>
-                <TableHead className="w-[90px] text-right">Actions</TableHead>
+                <TableHead className="w-[110px] text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -159,17 +126,20 @@ export default function Closures() {
               ) : filtered.map((r) => {
                 const past = r.date && r.date < todayIso;
                 return (
-                  <TableRow key={r.pk} className={past ? "opacity-60" : ""}>
+                  <TableRow key={r.closure_id} className={past ? "opacity-60" : ""}>
                     <TableCell className="whitespace-nowrap font-medium">
                       {r.date ? new Date(r.date + "T00:00:00").toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "—"}
                     </TableCell>
-                    <TableCell>{r.description ?? <span className="text-muted-foreground">—</span>}</TableCell>
+                    <TableCell>
+                      {r.description ?? <span className="text-muted-foreground">—</span>}
+                      {r.is_overridden && <Badge variant="outline" className="ml-2 text-[10px]">edited</Badge>}
+                    </TableCell>
                     <TableCell><Badge variant="secondary" className="font-normal">{r.type ?? "—"}</Badge></TableCell>
                     <TableCell className="text-sm">{r.affects ?? "All"}</TableCell>
                     <TableCell className="font-mono text-[11px] text-muted-foreground">{r.closure_id}</TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" onClick={() => openEdit(r)}><Pencil className="h-4 w-4" /></Button>
-                      <Button variant="ghost" size="icon" onClick={() => setConfirmDelete(r)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                      <Button variant="ghost" size="icon" onClick={() => openEdit(r)} title="Edit"><Pencil className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" onClick={() => setConfirmDelete(r)} title="Remove"><Trash2 className="h-4 w-4 text-destructive" /></Button>
                     </TableCell>
                   </TableRow>
                 );
@@ -179,58 +149,30 @@ export default function Closures() {
         </CardContent>
       </Card>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>{editing ? "Edit closure" : "Add closure"}</DialogTitle></DialogHeader>
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="cid">Closure ID</Label>
-                <Input id="cid" value={form.closure_id} onChange={(e) => setForm({ ...form, closure_id: e.target.value })} disabled={!!editing} />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="cdate">Date</Label>
-                <Input id="cdate" type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label>Type</Label>
-                <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="aff">Affects</Label>
-                <Input id="aff" value={form.affects} onChange={(e) => setForm({ ...form, affects: e.target.value })} placeholder="All, All schools, or SITE-xxx, SITE-yyy" />
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="desc">Description</Label>
-              <Textarea id="desc" rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-            </div>
-            <p className="text-[11px] text-muted-foreground">Use "All" to close every site, "All schools" to suppress school sites, or a comma-separated list of site IDs.</p>
-          </div>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button onClick={save} disabled={saving}>{saving ? "Saving…" : editing ? "Save changes" : "Add closure"}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {editing && (
+        <EntityFormDialog
+          open={open}
+          onOpenChange={(o) => { setOpen(o); if (!o) setEditing(null); }}
+          entity="closures"
+          idField="closure_id"
+          title={editing.pk ? "Edit closure" : "Add closure"}
+          fields={editFields}
+          initial={editing}
+          isAdmin={isAdmin}
+          onSaved={load}
+        />
+      )}
 
-      <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Remove this closure?</AlertDialogTitle>
-            <AlertDialogDescription>{confirmDelete?.description ?? confirmDelete?.closure_id} on {confirmDelete?.date}. This cannot be undone.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={doDelete}>Remove</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {confirmDelete && (
+        <DeleteOverrideDialog
+          open={!!confirmDelete}
+          onOpenChange={(o) => !o && setConfirmDelete(null)}
+          entity="closures"
+          targetId={confirmDelete.closure_id}
+          label={`${confirmDelete.description ?? confirmDelete.closure_id} on ${confirmDelete.date ?? "—"}`}
+          onDeleted={load}
+        />
+      )}
     </div>
   );
 }
