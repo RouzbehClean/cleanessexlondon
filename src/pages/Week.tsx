@@ -294,11 +294,25 @@ export default function Week() {
                                 {cell.shifts
                                   .sort((a: any, b: any) => (a.start_time ?? "").localeCompare(b.start_time ?? ""))
                                   .map((sh: any) => (
-                                    <div key={sh.pk} className={`text-xs leading-tight ${cell.closed ? "line-through opacity-60" : ""}`}>
-                                      <span className="font-medium">
-                                        {view === "sites" ? (sh.cleaner?.name ?? sh.cleaner_id) : (sh.site?.client_name ?? sh.site_id)}
-                                      </span>
-                                      <span className="text-muted-foreground"> · {sh.duration_hours ?? "?"}h</span>
+                                    <div key={sh.schedule_id ?? sh.pk} className={`group flex items-center gap-1 text-xs leading-tight ${cell.closed ? "line-through opacity-60" : ""}`}>
+                                      <button
+                                        onClick={() => { setEditing(sh); setEditOpen(true); }}
+                                        className="flex-1 text-left hover:underline"
+                                        title="Edit shift"
+                                      >
+                                        <span className="font-medium">
+                                          {view === "sites" ? (sh.cleaner?.name ?? sh.cleaner_id) : (sh.site?.client_name ?? sh.site_id)}
+                                        </span>
+                                        <span className="text-muted-foreground"> · {sh.duration_hours ?? "?"}h</span>
+                                        {sh.is_overridden && <Badge variant="outline" className="ml-1 text-[9px]">edited</Badge>}
+                                      </button>
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); setConfirmDelete(sh); }}
+                                        className="opacity-0 group-hover:opacity-100"
+                                        title="Remove shift"
+                                      >
+                                        <Trash2 className="h-3 w-3 text-destructive" />
+                                      </button>
                                     </div>
                                   ))}
                               </div>
@@ -314,6 +328,30 @@ export default function Week() {
           </div>
         </CardContent>
       </Card>
+
+      {editing && (
+        <EntityFormDialog
+          open={editOpen}
+          onOpenChange={(o) => { setEditOpen(o); if (!o) setEditing(null); }}
+          entity="schedule"
+          idField="schedule_id"
+          title={editing.pk ? "Edit shift" : "Add shift"}
+          fields={editing.pk ? SCHEDULE_FIELDS.map((f) => f.key === "schedule_id" ? { ...f, disabled: true } : f) : SCHEDULE_FIELDS}
+          initial={editing}
+          isAdmin={isAdmin}
+          onSaved={() => setReloadKey((k) => k + 1)}
+        />
+      )}
+      {confirmDelete && (
+        <DeleteOverrideDialog
+          open={!!confirmDelete}
+          onOpenChange={(o) => !o && setConfirmDelete(null)}
+          entity="schedule"
+          targetId={confirmDelete.schedule_id}
+          label={`${confirmDelete.day_of_week} ${confirmDelete.duration_hours}h — ${confirmDelete.site_id} / ${confirmDelete.cleaner_id}`}
+          onDeleted={() => setReloadKey((k) => k + 1)}
+        />
+      )}
     </div>
   );
 }
