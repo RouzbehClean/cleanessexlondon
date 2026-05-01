@@ -54,17 +54,17 @@ export default function Delivery() {
     (async () => {
       setLoading(true);
       const [s, c, sch, dl, cl] = await Promise.all([
-        supabase.from("sites").select("*"),
-        supabase.from("cleaners").select("*"),
-        supabase.from("schedule").select("*"),
-        supabase.from("delivery_log").select("*").gte("date", startIso).lte("date", endIso),
-        supabase.from("closures").select("*").gte("date", startIso).lte("date", endIso),
+        supabase.from("sites_live" as any).select("*"),
+        supabase.from("cleaners_live" as any).select("*"),
+        supabase.from("schedule_live" as any).select("*"),
+        supabase.from("delivery_live" as any).select("*").gte("date", startIso).lte("date", endIso),
+        supabase.from("closures_live" as any).select("*").gte("date", startIso).lte("date", endIso),
       ]);
-      setSites(new Map((s.data ?? []).map((r: any) => [r.site_id, r])));
-      setCleaners(new Map((c.data ?? []).map((r: any) => [r.cleaner_id, r])));
-      setSchedule(sch.data ?? []);
-      setDelivery(dl.data ?? []);
-      setClosures(cl.data ?? []);
+      setSites(new Map(((s.data ?? []) as any[]).map((r: any) => [r.site_id, r])));
+      setCleaners(new Map(((c.data ?? []) as any[]).map((r: any) => [r.cleaner_id, r])));
+      setSchedule((sch.data ?? []) as any[]);
+      setDelivery((dl.data ?? []) as any[]);
+      setClosures((cl.data ?? []) as any[]);
       setLoading(false);
     })();
   }, [startIso, endIso]);
