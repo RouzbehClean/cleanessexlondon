@@ -7,7 +7,28 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronLeft, ChevronRight, CalendarDays, AlertTriangle, Clock, Users, Building2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays, AlertTriangle, Clock, Users, Building2, Plus, Trash2 } from "lucide-react";
+import { useAuth } from "@/lib/auth";
+import EntityFormDialog, { FieldDef } from "@/components/EntityFormDialog";
+import DeleteOverrideDialog from "@/components/DeleteOverrideDialog";
+import { newEntityId } from "@/lib/overrides";
+
+const SCHEDULE_FIELDS: FieldDef[] = [
+  { key: "schedule_id", label: "Shift ID", required: true, half: true },
+  { key: "site_id", label: "Site ID", required: true, half: true },
+  { key: "cleaner_id", label: "Cleaner ID", required: true, half: true },
+  { key: "day_of_week", label: "Day", type: "select", options: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"], required: true, half: true },
+  { key: "start_time", label: "Start time", placeholder: "e.g. 17:00", half: true },
+  { key: "duration_hours", label: "Duration (hours)", type: "number", required: true, half: true },
+  { key: "shift_role", label: "Shift role", half: true },
+  { key: "shift_group_id", label: "Shift group", half: true },
+  { key: "pay_rate", label: "Pay rate (£/h)", type: "number", half: true, adminOnly: true },
+  { key: "billing_rate_override", label: "Billing override (£/h)", type: "number", half: true, adminOnly: true },
+  { key: "effective_from", label: "Effective from", type: "date", half: true },
+  { key: "effective_to", label: "Effective to", type: "date", half: true },
+  { key: "confidence", label: "Confidence", type: "select", options: ["High", "Medium", "Low"], half: true },
+  { key: "notes", label: "Notes", type: "textarea" },
+];
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 // JS getDay: 0=Sun..6=Sat. Map to our Mon-first index 0..6
@@ -26,6 +47,11 @@ function startOfWeek(d: Date) {
 }
 
 export default function Week() {
+  const { isAdmin } = useAuth();
+  const [editOpen, setEditOpen] = useState(false);
+  const [editing, setEditing] = useState<any | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<any | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
   const [anchor, setAnchor] = useState<Date>(new Date());
   const weekStart = useMemo(() => startOfWeek(anchor), [anchor]);
   const weekDates = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)), [weekStart]);
@@ -58,7 +84,7 @@ export default function Week() {
       setClosures((cl.data ?? []) as any[]);
       setLoading(false);
     })();
-  }, [startIso, endIso]);
+  }, [startIso, endIso, reloadKey]);
 
   // Closures map: iso -> Set of affected site ids (or "*" for all)
   const closuresByDate = useMemo(() => {
@@ -151,6 +177,9 @@ export default function Week() {
             <h1 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">{headerLabel}</h1>
           </div>
           <div className="flex items-center gap-2">
+            <Button variant="secondary" size="sm" onClick={() => { setEditing({ pk: "", schedule_id: newEntityId("SCH"), day_of_week: "Monday", duration_hours: 1 }); setEditOpen(true); }}>
+              <Plus className="mr-1 h-4 w-4" />Add shift
+            </Button>
             <Button variant="secondary" size="sm" onClick={() => setAnchor(addDays(weekStart, -7))}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -265,11 +294,25 @@ export default function Week() {
                                 {cell.shifts
                                   .sort((a: any, b: any) => (a.start_time ?? "").localeCompare(b.start_time ?? ""))
                                   .map((sh: any) => (
-                                    <div key={sh.pk} className={`text-xs leading-tight ${cell.closed ? "line-through opacity-60" : ""}`}>
-                                      <span className="font-medium">
-                                        {view === "sites" ? (sh.cleaner?.name ?? sh.cleaner_id) : (sh.site?.client_name ?? sh.site_id)}
-                                      </span>
-                                      <span className="text-muted-foreground"> · {sh.duration_hours ?? "?"}h</span>
+                                    <div key={sh.schedule_id ?? sh.pk} className={`group flex items-center gap-1 text-xs leading-tight ${cell.closed ? "line-through opacity-60" : ""}`}>
+                                      <button
+                                        onClick={() => { setEditing(sh); setEditOpen(true); }}
+                                        className="flex-1 text-left hover:underline"
+                                        title="Edit shift"
+                                      >
+                                        <span className="font-medium">
+                                          {view === "sites" ? (sh.cleaner?.name ?? sh.cleaner_id) : (sh.site?.client_name ?? sh.site_id)}
+                                        </span>
+                                        <span className="text-muted-foreground"> · {sh.duration_hours ?? "?"}h</span>
+                                        {sh.is_overridden && <Badge variant="outline" className="ml-1 text-[9px]">edited</Badge>}
+                                      </button>
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); setConfirmDelete(sh); }}
+                                        className="opacity-0 group-hover:opacity-100"
+                                        title="Remove shift"
+                                      >
+                                        <Trash2 className="h-3 w-3 text-destructive" />
+                                      </button>
                                     </div>
                                   ))}
                               </div>
@@ -285,6 +328,30 @@ export default function Week() {
           </div>
         </CardContent>
       </Card>
+
+      {editing && (
+        <EntityFormDialog
+          open={editOpen}
+          onOpenChange={(o) => { setEditOpen(o); if (!o) setEditing(null); }}
+          entity="schedule"
+          idField="schedule_id"
+          title={editing.pk ? "Edit shift" : "Add shift"}
+          fields={editing.pk ? SCHEDULE_FIELDS.map((f) => f.key === "schedule_id" ? { ...f, disabled: true } : f) : SCHEDULE_FIELDS}
+          initial={editing}
+          isAdmin={isAdmin}
+          onSaved={() => setReloadKey((k) => k + 1)}
+        />
+      )}
+      {confirmDelete && (
+        <DeleteOverrideDialog
+          open={!!confirmDelete}
+          onOpenChange={(o) => !o && setConfirmDelete(null)}
+          entity="schedule"
+          targetId={confirmDelete.schedule_id}
+          label={`${confirmDelete.day_of_week} ${confirmDelete.duration_hours}h — ${confirmDelete.site_id} / ${confirmDelete.cleaner_id}`}
+          onDeleted={() => setReloadKey((k) => k + 1)}
+        />
+      )}
     </div>
   );
 }

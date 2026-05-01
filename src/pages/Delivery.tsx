@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,21 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ChevronLeft, ChevronRight, CalendarDays, AlertTriangle, Clock, CheckCircle2, MinusCircle, PlusCircle, HelpCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays, AlertTriangle, Clock, CheckCircle2, MinusCircle, PlusCircle, HelpCircle, Plus, Pencil, Trash2 } from "lucide-react";
+import EntityFormDialog, { FieldDef } from "@/components/EntityFormDialog";
+import DeleteOverrideDialog from "@/components/DeleteOverrideDialog";
+import { newEntityId } from "@/lib/overrides";
+
+const DELIVERY_FIELDS: FieldDef[] = [
+  { key: "delivery_id", label: "Entry ID", required: true, half: true },
+  { key: "date", label: "Date", type: "date", required: true, half: true },
+  { key: "site_id", label: "Site ID", required: true, half: true },
+  { key: "cleaner_id", label: "Cleaner ID", required: true, half: true },
+  { key: "hours_clocked", label: "Hours clocked", type: "number", half: true },
+  { key: "pay_rate_at_time", label: "Pay rate (£/h)", type: "number", half: true, adminOnly: true },
+  { key: "source", label: "Source", placeholder: "e.g. manual, app, paper", half: true },
+  { key: "notes", label: "Notes", type: "textarea" },
+];
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const JS_TO_IDX = [6, 0, 1, 2, 3, 4, 5];
@@ -32,6 +47,18 @@ const STATUS_META: Record<Status, { label: string; cls: string; icon: any }> = {
 };
 
 export default function Delivery() {
+  const { isAdmin } = useAuth();
+  const [editOpen, setEditOpen] = useState(false);
+  const [editing, setEditing] = useState<any | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<any | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  function openCreate() {
+    setEditing({ pk: "", delivery_id: newEntityId("DEL"), date: isoDate(new Date()), site_id: "", cleaner_id: "", hours_clocked: 0 });
+    setEditOpen(true);
+  }
+  function openEdit(d: any) { setEditing(d); setEditOpen(true); }
+
   const [anchor, setAnchor] = useState<Date>(new Date());
   const weekStart = useMemo(() => startOfWeek(anchor), [anchor]);
   const weekDates = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)), [weekStart]);
@@ -67,7 +94,7 @@ export default function Delivery() {
       setClosures((cl.data ?? []) as any[]);
       setLoading(false);
     })();
-  }, [startIso, endIso]);
+  }, [startIso, endIso, reloadKey]);
 
   const closuresByDate = useMemo(() => {
     const map = new Map<string, { all: boolean; ids: Set<string> }>();
@@ -169,6 +196,7 @@ export default function Delivery() {
             <p className="mt-1 text-sm text-primary-foreground/80">Comparing planned shifts against logged hours.</p>
           </div>
           <div className="flex items-center gap-2">
+            <Button variant="secondary" size="sm" onClick={openCreate}><Plus className="mr-1 h-4 w-4" />Log entry</Button>
             <Button variant="secondary" size="sm" onClick={() => setAnchor(addDays(weekStart, -7))}><ChevronLeft className="h-4 w-4" /></Button>
             <Button variant="secondary" size="sm" onClick={() => setAnchor(new Date())}><CalendarDays className="mr-1 h-4 w-4" />This week</Button>
             <Button variant="secondary" size="sm" onClick={() => setAnchor(addDays(weekStart, 7))}><ChevronRight className="h-4 w-4" /></Button>
@@ -220,13 +248,14 @@ export default function Delivery() {
                 <TableHead className="text-right">Actual</TableHead>
                 <TableHead className="text-right">Δ</TableHead>
                 <TableHead className="w-[140px]">Status</TableHead>
+                <TableHead className="w-[110px] text-right">Entries</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow><TableCell colSpan={7} className="p-8 text-center text-muted-foreground">Loading…</TableCell></TableRow>
+                <TableRow><TableCell colSpan={8} className="p-8 text-center text-muted-foreground">Loading…</TableCell></TableRow>
               ) : rows.length === 0 ? (
-                <TableRow><TableCell colSpan={7} className="p-8 text-center text-muted-foreground">No records match.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={8} className="p-8 text-center text-muted-foreground">No records match.</TableCell></TableRow>
               ) : rows.map((r) => {
                 const meta = STATUS_META[r.status];
                 const Icon = meta.icon;
@@ -259,6 +288,24 @@ export default function Delivery() {
                         <Icon className="h-3 w-3" />{meta.label}
                       </Badge>
                     </TableCell>
+                    <TableCell className="text-right">
+                      {r.deliveries.length === 0 ? (
+                        <Button variant="ghost" size="sm" onClick={() => { setEditing({ pk: "", delivery_id: newEntityId("DEL"), date: r.date, site_id: r.site_id, cleaner_id: r.cleaner_id, hours_clocked: r.scheduled }); setEditOpen(true); }}>
+                          <Plus className="mr-1 h-3 w-3" />Add
+                        </Button>
+                      ) : (
+                        <div className="flex flex-col items-end gap-0.5">
+                          {r.deliveries.map((d: any) => (
+                            <div key={d.delivery_id} className="flex items-center gap-1">
+                              <span className="text-[11px] text-muted-foreground">{d.hours_clocked}h</span>
+                              {d.is_overridden && <Badge variant="outline" className="text-[9px]">edited</Badge>}
+                              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => openEdit(d)}><Pencil className="h-3 w-3" /></Button>
+                              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setConfirmDelete(d)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </TableCell>
                   </TableRow>
                 );
               })}
@@ -266,6 +313,30 @@ export default function Delivery() {
           </Table>
         </CardContent>
       </Card>
+
+      {editing && (
+        <EntityFormDialog
+          open={editOpen}
+          onOpenChange={(o) => { setEditOpen(o); if (!o) setEditing(null); }}
+          entity="delivery"
+          idField="delivery_id"
+          title={editing.pk ? "Edit delivery entry" : "Log delivery entry"}
+          fields={editing.pk ? DELIVERY_FIELDS.map((f) => f.key === "delivery_id" ? { ...f, disabled: true } : f) : DELIVERY_FIELDS}
+          initial={editing}
+          isAdmin={isAdmin}
+          onSaved={() => setReloadKey((k) => k + 1)}
+        />
+      )}
+      {confirmDelete && (
+        <DeleteOverrideDialog
+          open={!!confirmDelete}
+          onOpenChange={(o) => !o && setConfirmDelete(null)}
+          entity="delivery"
+          targetId={confirmDelete.delivery_id}
+          label={`${confirmDelete.hours_clocked}h on ${confirmDelete.date}`}
+          onDeleted={() => setReloadKey((k) => k + 1)}
+        />
+      )}
     </div>
   );
 }
