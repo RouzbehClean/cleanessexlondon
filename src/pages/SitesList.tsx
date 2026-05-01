@@ -31,7 +31,7 @@ export default function SitesList() {
         .from("sites")
         .select("pk,site_id,client_name,region,postcode,contract_type,active,team_grouping")
         .order("client_name", { ascending: true });
-      setRows((data ?? []) as Site[]);
+      setRows(((data ?? []) as unknown) as Site[]);
       setLoading(false);
     })();
   }, []);

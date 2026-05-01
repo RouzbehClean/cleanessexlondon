@@ -23,7 +23,7 @@ export default function CleanersList() {
       const { data } = await supabase.from("cleaners_live" as any)
         .select("pk,cleaner_id,name,region_primary,employment_type,team_id,active,sub_nlw_flag")
         .order("name");
-      setRows(data ?? []);
+      setRows((data ?? []) as any[]);
       setLoading(false);
     })();
   }, []);

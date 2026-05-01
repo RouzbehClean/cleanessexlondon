@@ -43,11 +43,11 @@ export default function Reports() {
         supabase.from("delivery_live" as any).select("*").gte("date", from).lte("date", to),
         supabase.from("closures_live" as any).select("*").gte("date", from).lte("date", to),
       ]);
-      setSites(new Map((s.data ?? []).map((r: any) => [r.site_id, r])));
-      setCleaners(new Map((c.data ?? []).map((r: any) => [r.cleaner_id, r])));
-      setSchedule(sch.data ?? []);
-      setDelivery(dl.data ?? []);
-      setClosures(cl.data ?? []);
+      setSites(new Map(((s.data ?? []) as any[]).map((r: any) => [r.site_id, r])));
+      setCleaners(new Map(((c.data ?? []) as any[]).map((r: any) => [r.cleaner_id, r])));
+      setSchedule((sch.data ?? []) as any[]);
+      setDelivery((dl.data ?? []) as any[]);
+      setClosures((cl.data ?? []) as any[]);
       setLoading(false);
     })();
   }, [from, to]);

@@ -52,10 +52,10 @@ export default function Today() {
         supabase.from("schedule_live" as any).select("*").eq("day_of_week", dayName),
         supabase.from("closures_live" as any).select("*").eq("date", iso),
       ]);
-      setSites(new Map((s.data ?? []).map((r: any) => [r.site_id, r])));
-      setCleaners(new Map((c.data ?? []).map((r: any) => [r.cleaner_id, r])));
-      setSchedule(sch.data ?? []);
-      setClosures(cl.data ?? []);
+      setSites(new Map(((s.data ?? []) as any[]).map((r: any) => [r.site_id, r])));
+      setCleaners(new Map(((c.data ?? []) as any[]).map((r: any) => [r.cleaner_id, r])));
+      setSchedule((sch.data ?? []) as any[]);
+      setClosures((cl.data ?? []) as any[]);
       setLoading(false);
     })();
   }, [iso, dayName]);
