@@ -84,7 +84,7 @@ export default function Week() {
       setClosures((cl.data ?? []) as any[]);
       setLoading(false);
     })();
-  }, [startIso, endIso]);
+  }, [startIso, endIso, reloadKey]);
 
   // Closures map: iso -> Set of affected site ids (or "*" for all)
   const closuresByDate = useMemo(() => {
