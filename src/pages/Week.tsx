@@ -177,6 +177,9 @@ export default function Week() {
             <h1 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">{headerLabel}</h1>
           </div>
           <div className="flex items-center gap-2">
+            <Button variant="secondary" size="sm" onClick={() => { setEditing({ pk: "", schedule_id: newEntityId("SCH"), day_of_week: "Monday", duration_hours: 1 }); setEditOpen(true); }}>
+              <Plus className="mr-1 h-4 w-4" />Add shift
+            </Button>
             <Button variant="secondary" size="sm" onClick={() => setAnchor(addDays(weekStart, -7))}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
