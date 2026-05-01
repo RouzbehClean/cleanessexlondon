@@ -40,10 +40,10 @@ export default function SiteDetail() {
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const { data: s } = await supabase.from("sites").select("*").eq("site_id", siteId).maybeSingle();
+      const { data: s } = await supabase.from("sites_live" as any).select("*").eq("site_id", siteId).maybeSingle();
       setSite(s);
-      const { data: sch } = await supabase.from("schedule").select("*").eq("site_id", siteId).order("day_of_week");
-      const { data: cleanersAll } = await supabase.from("cleaners").select("cleaner_id,name");
+      const { data: sch } = await supabase.from("schedule_live" as any).select("*").eq("site_id", siteId).order("day_of_week");
+      const { data: cleanersAll } = await supabase.from("cleaners_live" as any).select("cleaner_id,name");
       const cMap = new Map((cleanersAll ?? []).map((c) => [c.cleaner_id, c.name]));
       setSchedule((sch ?? []).map((r: any) => ({ ...r, cleaner_name: cMap.get(r.cleaner_id) ?? r.cleaner_id })));
 
@@ -51,7 +51,7 @@ export default function SiteDetail() {
         .from("delivery_log").select("*").eq("site_id", siteId).order("date", { ascending: false }).limit(50);
       setDelivery((dl ?? []).map((r) => ({ ...r, cleaner_name: cMap.get(r.cleaner_id) ?? r.cleaner_id })));
 
-      const { data: cl } = await supabase.from("closures").select("*").order("date");
+      const { data: cl } = await supabase.from("closures_live" as any).select("*").order("date");
       setClosures(cl ?? []);
       setLoading(false);
     })();

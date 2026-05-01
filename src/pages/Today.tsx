@@ -47,10 +47,10 @@ export default function Today() {
     (async () => {
       setLoading(true);
       const [s, c, sch, cl] = await Promise.all([
-        supabase.from("sites").select("*"),
-        supabase.from("cleaners").select("*"),
-        supabase.from("schedule").select("*").eq("day_of_week", dayName),
-        supabase.from("closures").select("*").eq("date", iso),
+        supabase.from("sites_live" as any).select("*"),
+        supabase.from("cleaners_live" as any).select("*"),
+        supabase.from("schedule_live" as any).select("*").eq("day_of_week", dayName),
+        supabase.from("closures_live" as any).select("*").eq("date", iso),
       ]);
       setSites(new Map((s.data ?? []).map((r: any) => [r.site_id, r])));
       setCleaners(new Map((c.data ?? []).map((r: any) => [r.cleaner_id, r])));

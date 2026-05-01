@@ -28,10 +28,10 @@ export default function Alerts() {
     (async () => {
       setLoading(true);
       const [s, c, sch, cl] = await Promise.all([
-        supabase.from("sites").select("*"),
-        supabase.from("cleaners").select("*"),
-        supabase.from("schedule").select("*"),
-        supabase.from("closures").select("*"),
+        supabase.from("sites_live" as any).select("*"),
+        supabase.from("cleaners_live" as any).select("*"),
+        supabase.from("schedule_live" as any).select("*"),
+        supabase.from("closures_live" as any).select("*"),
       ]);
       setSites(s.data ?? []);
       setCleaners(c.data ?? []);

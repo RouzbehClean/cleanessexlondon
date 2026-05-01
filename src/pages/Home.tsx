@@ -19,9 +19,9 @@ export default function Home() {
       const { count: vCount } = await supabase.from("data_versions").select("*", { count: "exact", head: true });
       setHasVersion((vCount ?? 0) > 0);
       const [s, c, sc] = await Promise.all([
-        supabase.from("sites").select("*", { count: "exact", head: true }),
-        supabase.from("cleaners").select("*", { count: "exact", head: true }),
-        supabase.from("schedule").select("*", { count: "exact", head: true }),
+        supabase.from("sites_live" as any).select("*", { count: "exact", head: true }),
+        supabase.from("cleaners_live" as any).select("*", { count: "exact", head: true }),
+        supabase.from("schedule_live" as any).select("*", { count: "exact", head: true }),
       ]);
       setCounts({ sites: s.count ?? 0, cleaners: c.count ?? 0, schedule: sc.count ?? 0 });
     })();
