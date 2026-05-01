@@ -82,6 +82,48 @@ export type Database = {
           },
         ]
       }
+      cleaners_overrides: {
+        Row: {
+          cleaner_id: string
+          edited_at: string
+          edited_by: string | null
+          id: string
+          is_active: boolean
+          note: string | null
+          op: Database["public"]["Enums"]["override_op"]
+          payload: Json | null
+          reverted_at: string | null
+          reverted_by: string | null
+          version_id: string
+        }
+        Insert: {
+          cleaner_id: string
+          edited_at?: string
+          edited_by?: string | null
+          id?: string
+          is_active?: boolean
+          note?: string | null
+          op: Database["public"]["Enums"]["override_op"]
+          payload?: Json | null
+          reverted_at?: string | null
+          reverted_by?: string | null
+          version_id: string
+        }
+        Update: {
+          cleaner_id?: string
+          edited_at?: string
+          edited_by?: string | null
+          id?: string
+          is_active?: boolean
+          note?: string | null
+          op?: Database["public"]["Enums"]["override_op"]
+          payload?: Json | null
+          reverted_at?: string | null
+          reverted_by?: string | null
+          version_id?: string
+        }
+        Relationships: []
+      }
       closures: {
         Row: {
           affects: string | null
@@ -119,6 +161,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      closures_overrides: {
+        Row: {
+          closure_id: string
+          edited_at: string
+          edited_by: string | null
+          id: string
+          is_active: boolean
+          note: string | null
+          op: Database["public"]["Enums"]["override_op"]
+          payload: Json | null
+          reverted_at: string | null
+          reverted_by: string | null
+          version_id: string
+        }
+        Insert: {
+          closure_id: string
+          edited_at?: string
+          edited_by?: string | null
+          id?: string
+          is_active?: boolean
+          note?: string | null
+          op: Database["public"]["Enums"]["override_op"]
+          payload?: Json | null
+          reverted_at?: string | null
+          reverted_by?: string | null
+          version_id: string
+        }
+        Update: {
+          closure_id?: string
+          edited_at?: string
+          edited_by?: string | null
+          id?: string
+          is_active?: boolean
+          note?: string | null
+          op?: Database["public"]["Enums"]["override_op"]
+          payload?: Json | null
+          reverted_at?: string | null
+          reverted_by?: string | null
+          version_id?: string
+        }
+        Relationships: []
       }
       data_versions: {
         Row: {
@@ -202,6 +286,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      delivery_overrides: {
+        Row: {
+          delivery_id: string
+          edited_at: string
+          edited_by: string | null
+          id: string
+          is_active: boolean
+          note: string | null
+          op: Database["public"]["Enums"]["override_op"]
+          payload: Json | null
+          reverted_at: string | null
+          reverted_by: string | null
+          version_id: string
+        }
+        Insert: {
+          delivery_id: string
+          edited_at?: string
+          edited_by?: string | null
+          id?: string
+          is_active?: boolean
+          note?: string | null
+          op: Database["public"]["Enums"]["override_op"]
+          payload?: Json | null
+          reverted_at?: string | null
+          reverted_by?: string | null
+          version_id: string
+        }
+        Update: {
+          delivery_id?: string
+          edited_at?: string
+          edited_by?: string | null
+          id?: string
+          is_active?: boolean
+          note?: string | null
+          op?: Database["public"]["Enums"]["override_op"]
+          payload?: Json | null
+          reverted_at?: string | null
+          reverted_by?: string | null
+          version_id?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -294,6 +420,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      schedule_overrides: {
+        Row: {
+          edited_at: string
+          edited_by: string | null
+          id: string
+          is_active: boolean
+          note: string | null
+          op: Database["public"]["Enums"]["override_op"]
+          payload: Json | null
+          reverted_at: string | null
+          reverted_by: string | null
+          schedule_id: string
+          version_id: string
+        }
+        Insert: {
+          edited_at?: string
+          edited_by?: string | null
+          id?: string
+          is_active?: boolean
+          note?: string | null
+          op: Database["public"]["Enums"]["override_op"]
+          payload?: Json | null
+          reverted_at?: string | null
+          reverted_by?: string | null
+          schedule_id: string
+          version_id: string
+        }
+        Update: {
+          edited_at?: string
+          edited_by?: string | null
+          id?: string
+          is_active?: boolean
+          note?: string | null
+          op?: Database["public"]["Enums"]["override_op"]
+          payload?: Json | null
+          reverted_at?: string | null
+          reverted_by?: string | null
+          schedule_id?: string
+          version_id?: string
+        }
+        Relationships: []
       }
       sites: {
         Row: {
@@ -390,6 +558,48 @@ export type Database = {
           },
         ]
       }
+      sites_overrides: {
+        Row: {
+          edited_at: string
+          edited_by: string | null
+          id: string
+          is_active: boolean
+          note: string | null
+          op: Database["public"]["Enums"]["override_op"]
+          payload: Json | null
+          reverted_at: string | null
+          reverted_by: string | null
+          site_id: string
+          version_id: string
+        }
+        Insert: {
+          edited_at?: string
+          edited_by?: string | null
+          id?: string
+          is_active?: boolean
+          note?: string | null
+          op: Database["public"]["Enums"]["override_op"]
+          payload?: Json | null
+          reverted_at?: string | null
+          reverted_by?: string | null
+          site_id: string
+          version_id: string
+        }
+        Update: {
+          edited_at?: string
+          edited_by?: string | null
+          id?: string
+          is_active?: boolean
+          note?: string | null
+          op?: Database["public"]["Enums"]["override_op"]
+          payload?: Json | null
+          reverted_at?: string | null
+          reverted_by?: string | null
+          site_id?: string
+          version_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -413,7 +623,128 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      cleaners_live: {
+        Row: {
+          active: string | null
+          cleaner_id: string | null
+          dbs_date: string | null
+          dbs_done: string | null
+          edited_at: string | null
+          edited_by: string | null
+          email: string | null
+          employment_type: string | null
+          is_overridden: boolean | null
+          name: string | null
+          notes: string | null
+          override_id: string | null
+          pat_test_personal_kit: string | null
+          phone: string | null
+          pk: string | null
+          region_primary: string | null
+          right_to_work_on_file: string | null
+          safeguarding_done: string | null
+          sub_nlw_flag: string | null
+          team_id: string | null
+          version_id: string | null
+        }
+        Relationships: []
+      }
+      closures_live: {
+        Row: {
+          affects: string | null
+          closure_id: string | null
+          date: string | null
+          description: string | null
+          edited_at: string | null
+          edited_by: string | null
+          is_overridden: boolean | null
+          override_id: string | null
+          pk: string | null
+          type: string | null
+          version_id: string | null
+        }
+        Relationships: []
+      }
+      delivery_live: {
+        Row: {
+          cleaner_id: string | null
+          date: string | null
+          delivery_id: string | null
+          edited_at: string | null
+          edited_by: string | null
+          hours_clocked: number | null
+          is_overridden: boolean | null
+          notes: string | null
+          override_id: string | null
+          pay_rate_at_time: number | null
+          pk: string | null
+          site_id: string | null
+          source: string | null
+          version_id: string | null
+        }
+        Relationships: []
+      }
+      schedule_live: {
+        Row: {
+          billing_rate_override: number | null
+          cleaner_id: string | null
+          confidence: string | null
+          day_of_week: string | null
+          duration_hours: number | null
+          edited_at: string | null
+          edited_by: string | null
+          effective_from: string | null
+          effective_to: string | null
+          is_overridden: boolean | null
+          notes: string | null
+          override_id: string | null
+          pay_rate: number | null
+          pk: string | null
+          schedule_id: string | null
+          shift_group_id: string | null
+          shift_role: string | null
+          site_id: string | null
+          start_time: string | null
+          version_id: string | null
+          visits_in_apr_2026: number | null
+        }
+        Relationships: []
+      }
+      sites_live: {
+        Row: {
+          access_instructions: string | null
+          access_method: string | null
+          active: string | null
+          address: string | null
+          alarm_info: string | null
+          billing_rate_default: number | null
+          client_name: string | null
+          contract_end: string | null
+          contract_start: string | null
+          contract_type: string | null
+          cupboard_codes: string | null
+          edited_at: string | null
+          edited_by: string | null
+          general_notes: string | null
+          hs_folder_last_updated: string | null
+          is_overridden: boolean | null
+          override_id: string | null
+          pat_test_due: string | null
+          pk: string | null
+          postcode: string | null
+          products_notes: string | null
+          products_supplied_by: string | null
+          region: string | null
+          site_contact_email: string | null
+          site_contact_name: string | null
+          site_contact_phone: string | null
+          site_id: string | null
+          team_grouping: string | null
+          term_time_only: string | null
+          version_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       active_version_id: { Args: never; Returns: string }
@@ -427,6 +758,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "staff"
+      override_op: "upsert" | "delete"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -555,6 +887,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "staff"],
+      override_op: ["upsert", "delete"],
     },
   },
 } as const
