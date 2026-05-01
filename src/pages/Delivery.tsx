@@ -290,7 +290,7 @@ export default function Delivery() {
                     </TableCell>
                     <TableCell className="text-right">
                       {r.deliveries.length === 0 ? (
-                        <Button variant="ghost" size="sm" onClick={() => setEditing({ pk: "", delivery_id: newEntityId("DEL"), date: r.date, site_id: r.site_id, cleaner_id: r.cleaner_id, hours_clocked: r.scheduled }) || setEditOpen(true)}>
+                        <Button variant="ghost" size="sm" onClick={() => { setEditing({ pk: "", delivery_id: newEntityId("DEL"), date: r.date, site_id: r.site_id, cleaner_id: r.cleaner_id, hours_clocked: r.scheduled }); setEditOpen(true); }}>
                           <Plus className="mr-1 h-3 w-3" />Add
                         </Button>
                       ) : (
