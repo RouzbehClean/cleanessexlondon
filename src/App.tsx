@@ -23,6 +23,7 @@ import CleanersList from "@/pages/CleanersList";
 import CleanerDetail from "@/pages/CleanerDetail";
 import Uploads from "@/pages/Uploads";
 import Users from "@/pages/Users";
+import Overrides from "@/pages/Overrides";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,13 +47,14 @@ const App = () => (
               <Route path="/delivery" element={<Delivery />} />
               <Route path="/alerts" element={<Alerts />} />
               <Route path="/reports" element={<Reports />} />
-              <Route path="/closures" element={<RequireAdmin><Closures /></RequireAdmin>} />
+              <Route path="/closures" element={<Closures />} />
               <Route path="/sites" element={<SitesList />} />
               <Route path="/sites/:siteId" element={<SiteDetail />} />
               <Route path="/cleaners" element={<CleanersList />} />
               <Route path="/cleaners/:cleanerId" element={<CleanerDetail />} />
               <Route path="/uploads" element={<RequireAdmin><Uploads /></RequireAdmin>} />
               <Route path="/users" element={<RequireAdmin><Users /></RequireAdmin>} />
+              <Route path="/overrides" element={<RequireAdmin><Overrides /></RequireAdmin>} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

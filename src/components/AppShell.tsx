@@ -1,7 +1,7 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
-import { Building2, Users, Upload, UserCog, LogOut, Home, Sparkles, CalendarDays, CalendarRange, ClipboardCheck, CalendarOff, AlertTriangle, BarChart3 } from "lucide-react";
+import { Building2, Users, Upload, UserCog, LogOut, Home, Sparkles, CalendarDays, CalendarRange, ClipboardCheck, CalendarOff, AlertTriangle, BarChart3, History } from "lucide-react";
 
 export default function AppShell() {
   const { isAdmin, signOut, user } = useAuth();
@@ -36,9 +36,10 @@ export default function AppShell() {
           <NavLink to="/reports" className={linkClass}><BarChart3 className="h-4 w-4" />Reports</NavLink>
           <NavLink to="/sites" className={linkClass}><Building2 className="h-4 w-4" />Sites</NavLink>
           <NavLink to="/cleaners" className={linkClass}><Users className="h-4 w-4" />Cleaners</NavLink>
-          {isAdmin && <NavLink to="/closures" className={linkClass}><CalendarOff className="h-4 w-4" />Closures</NavLink>}
+          <NavLink to="/closures" className={linkClass}><CalendarOff className="h-4 w-4" />Closures</NavLink>
           {isAdmin && <NavLink to="/uploads" className={linkClass}><Upload className="h-4 w-4" />Uploads</NavLink>}
           {isAdmin && <NavLink to="/users" className={linkClass}><UserCog className="h-4 w-4" />Users</NavLink>}
+          {isAdmin && <NavLink to="/overrides" className={linkClass}><History className="h-4 w-4" />Edits</NavLink>}
         </nav>
         <div className="border-t border-sidebar-border p-3">
           <div className="mb-2 flex items-center gap-2 rounded-md px-2 py-2">
