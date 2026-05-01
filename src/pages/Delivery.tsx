@@ -248,13 +248,14 @@ export default function Delivery() {
                 <TableHead className="text-right">Actual</TableHead>
                 <TableHead className="text-right">Δ</TableHead>
                 <TableHead className="w-[140px]">Status</TableHead>
+                <TableHead className="w-[110px] text-right">Entries</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow><TableCell colSpan={7} className="p-8 text-center text-muted-foreground">Loading…</TableCell></TableRow>
+                <TableRow><TableCell colSpan={8} className="p-8 text-center text-muted-foreground">Loading…</TableCell></TableRow>
               ) : rows.length === 0 ? (
-                <TableRow><TableCell colSpan={7} className="p-8 text-center text-muted-foreground">No records match.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={8} className="p-8 text-center text-muted-foreground">No records match.</TableCell></TableRow>
               ) : rows.map((r) => {
                 const meta = STATUS_META[r.status];
                 const Icon = meta.icon;
@@ -287,6 +288,24 @@ export default function Delivery() {
                         <Icon className="h-3 w-3" />{meta.label}
                       </Badge>
                     </TableCell>
+                    <TableCell className="text-right">
+                      {r.deliveries.length === 0 ? (
+                        <Button variant="ghost" size="sm" onClick={() => setEditing({ pk: "", delivery_id: newEntityId("DEL"), date: r.date, site_id: r.site_id, cleaner_id: r.cleaner_id, hours_clocked: r.scheduled }) || setEditOpen(true)}>
+                          <Plus className="mr-1 h-3 w-3" />Add
+                        </Button>
+                      ) : (
+                        <div className="flex flex-col items-end gap-0.5">
+                          {r.deliveries.map((d: any) => (
+                            <div key={d.delivery_id} className="flex items-center gap-1">
+                              <span className="text-[11px] text-muted-foreground">{d.hours_clocked}h</span>
+                              {d.is_overridden && <Badge variant="outline" className="text-[9px]">edited</Badge>}
+                              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => openEdit(d)}><Pencil className="h-3 w-3" /></Button>
+                              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setConfirmDelete(d)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </TableCell>
                   </TableRow>
                 );
               })}
@@ -294,6 +313,30 @@ export default function Delivery() {
           </Table>
         </CardContent>
       </Card>
+
+      {editing && (
+        <EntityFormDialog
+          open={editOpen}
+          onOpenChange={(o) => { setEditOpen(o); if (!o) setEditing(null); }}
+          entity="delivery"
+          idField="delivery_id"
+          title={editing.pk ? "Edit delivery entry" : "Log delivery entry"}
+          fields={editing.pk ? DELIVERY_FIELDS.map((f) => f.key === "delivery_id" ? { ...f, disabled: true } : f) : DELIVERY_FIELDS}
+          initial={editing}
+          isAdmin={isAdmin}
+          onSaved={() => setReloadKey((k) => k + 1)}
+        />
+      )}
+      {confirmDelete && (
+        <DeleteOverrideDialog
+          open={!!confirmDelete}
+          onOpenChange={(o) => !o && setConfirmDelete(null)}
+          entity="delivery"
+          targetId={confirmDelete.delivery_id}
+          label={`${confirmDelete.hours_clocked}h on ${confirmDelete.date}`}
+          onDeleted={() => setReloadKey((k) => k + 1)}
+        />
+      )}
     </div>
   );
 }
