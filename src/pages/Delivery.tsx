@@ -94,7 +94,7 @@ export default function Delivery() {
       setClosures((cl.data ?? []) as any[]);
       setLoading(false);
     })();
-  }, [startIso, endIso]);
+  }, [startIso, endIso, reloadKey]);
 
   const closuresByDate = useMemo(() => {
     const map = new Map<string, { all: boolean; ids: Set<string> }>();
