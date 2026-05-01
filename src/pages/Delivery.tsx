@@ -7,7 +7,21 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ChevronLeft, ChevronRight, CalendarDays, AlertTriangle, Clock, CheckCircle2, MinusCircle, PlusCircle, HelpCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays, AlertTriangle, Clock, CheckCircle2, MinusCircle, PlusCircle, HelpCircle, Plus, Pencil, Trash2 } from "lucide-react";
+import EntityFormDialog, { FieldDef } from "@/components/EntityFormDialog";
+import DeleteOverrideDialog from "@/components/DeleteOverrideDialog";
+import { newEntityId } from "@/lib/overrides";
+
+const DELIVERY_FIELDS: FieldDef[] = [
+  { key: "delivery_id", label: "Entry ID", required: true, half: true },
+  { key: "date", label: "Date", type: "date", required: true, half: true },
+  { key: "site_id", label: "Site ID", required: true, half: true },
+  { key: "cleaner_id", label: "Cleaner ID", required: true, half: true },
+  { key: "hours_clocked", label: "Hours clocked", type: "number", half: true },
+  { key: "pay_rate_at_time", label: "Pay rate (£/h)", type: "number", half: true, adminOnly: true },
+  { key: "source", label: "Source", placeholder: "e.g. manual, app, paper", half: true },
+  { key: "notes", label: "Notes", type: "textarea" },
+];
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const JS_TO_IDX = [6, 0, 1, 2, 3, 4, 5];
