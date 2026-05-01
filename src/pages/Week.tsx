@@ -7,7 +7,28 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronLeft, ChevronRight, CalendarDays, AlertTriangle, Clock, Users, Building2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays, AlertTriangle, Clock, Users, Building2, Plus, Trash2 } from "lucide-react";
+import { useAuth } from "@/lib/auth";
+import EntityFormDialog, { FieldDef } from "@/components/EntityFormDialog";
+import DeleteOverrideDialog from "@/components/DeleteOverrideDialog";
+import { newEntityId } from "@/lib/overrides";
+
+const SCHEDULE_FIELDS: FieldDef[] = [
+  { key: "schedule_id", label: "Shift ID", required: true, half: true },
+  { key: "site_id", label: "Site ID", required: true, half: true },
+  { key: "cleaner_id", label: "Cleaner ID", required: true, half: true },
+  { key: "day_of_week", label: "Day", type: "select", options: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"], required: true, half: true },
+  { key: "start_time", label: "Start time", placeholder: "e.g. 17:00", half: true },
+  { key: "duration_hours", label: "Duration (hours)", type: "number", required: true, half: true },
+  { key: "shift_role", label: "Shift role", half: true },
+  { key: "shift_group_id", label: "Shift group", half: true },
+  { key: "pay_rate", label: "Pay rate (£/h)", type: "number", half: true, adminOnly: true },
+  { key: "billing_rate_override", label: "Billing override (£/h)", type: "number", half: true, adminOnly: true },
+  { key: "effective_from", label: "Effective from", type: "date", half: true },
+  { key: "effective_to", label: "Effective to", type: "date", half: true },
+  { key: "confidence", label: "Confidence", type: "select", options: ["High", "Medium", "Low"], half: true },
+  { key: "notes", label: "Notes", type: "textarea" },
+];
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 // JS getDay: 0=Sun..6=Sat. Map to our Mon-first index 0..6
@@ -26,6 +47,11 @@ function startOfWeek(d: Date) {
 }
 
 export default function Week() {
+  const { isAdmin } = useAuth();
+  const [editOpen, setEditOpen] = useState(false);
+  const [editing, setEditing] = useState<any | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<any | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
   const [anchor, setAnchor] = useState<Date>(new Date());
   const weekStart = useMemo(() => startOfWeek(anchor), [anchor]);
   const weekDates = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)), [weekStart]);
