@@ -50,7 +50,7 @@ export default function Closures() {
   async function load() {
     setLoading(true);
     const { data } = await supabase.from("closures_live" as any).select("*").order("date", { ascending: true });
-    setRows((data ?? []) as Closure[]);
+    setRows(((data ?? []) as unknown) as Closure[]);
     setLoading(false);
   }
   useEffect(() => { load(); }, []);

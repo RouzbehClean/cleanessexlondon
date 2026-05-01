@@ -51,11 +51,11 @@ export default function CleanerDetail() {
       const { data: cleaner } = await supabase.from("cleaners_live" as any).select("*").eq("cleaner_id", cleanerId).maybeSingle();
       setC(cleaner);
       const { data: sites } = await supabase.from("sites_live" as any).select("site_id,client_name");
-      const sMap = new Map((sites ?? []).map((s) => [s.site_id, s.client_name]));
+      const sMap = new Map(((sites ?? []) as any[]).map((s: any) => [s.site_id, s.client_name]));
       const { data: sch } = await supabase.from("schedule_live" as any).select("*").eq("cleaner_id", cleanerId);
-      setSchedule((sch ?? []).map((r: any) => ({ ...r, site_name: sMap.get(r.site_id) ?? r.site_id })));
+      setSchedule(((sch ?? []) as any[]).map((r: any) => ({ ...r, site_name: sMap.get(r.site_id) ?? r.site_id })));
       const { data: dl } = await supabase.from("delivery_live" as any).select("*").eq("cleaner_id", cleanerId).order("date", { ascending: false }).limit(500);
-      setDelivery((dl ?? []).map((r) => ({ ...r, site_name: sMap.get(r.site_id) ?? r.site_id })));
+      setDelivery(((dl ?? []) as any[]).map((r: any) => ({ ...r, site_name: sMap.get(r.site_id) ?? r.site_id })));
       setLoading(false);
     })();
   }, [cleanerId]);

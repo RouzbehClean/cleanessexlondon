@@ -44,7 +44,7 @@ export default function SiteDetail() {
       setSite(s);
       const { data: sch } = await supabase.from("schedule_live" as any).select("*").eq("site_id", siteId).order("day_of_week");
       const { data: cleanersAll } = await supabase.from("cleaners_live" as any).select("cleaner_id,name");
-      const cMap = new Map((cleanersAll ?? []).map((c) => [c.cleaner_id, c.name]));
+      const cMap = new Map(((cleanersAll ?? []) as any[]).map((c: any) => [c.cleaner_id, c.name]));
       setSchedule((sch ?? []).map((r: any) => ({ ...r, cleaner_name: cMap.get(r.cleaner_id) ?? r.cleaner_id })));
 
       const { data: dl } = await supabase
