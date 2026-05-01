@@ -47,6 +47,18 @@ const STATUS_META: Record<Status, { label: string; cls: string; icon: any }> = {
 };
 
 export default function Delivery() {
+  const { isAdmin } = useAuth();
+  const [editOpen, setEditOpen] = useState(false);
+  const [editing, setEditing] = useState<any | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<any | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  function openCreate() {
+    setEditing({ pk: "", delivery_id: newEntityId("DEL"), date: isoDate(new Date()), site_id: "", cleaner_id: "", hours_clocked: 0 });
+    setEditOpen(true);
+  }
+  function openEdit(d: any) { setEditing(d); setEditOpen(true); }
+
   const [anchor, setAnchor] = useState<Date>(new Date());
   const weekStart = useMemo(() => startOfWeek(anchor), [anchor]);
   const weekDates = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)), [weekStart]);
