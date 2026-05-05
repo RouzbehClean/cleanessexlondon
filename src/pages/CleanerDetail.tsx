@@ -104,8 +104,18 @@ export default function CleanerDetail() {
   };
 
   // Compliance items
+  const rtwExpiry = c.right_to_work_expiry as string | null;
+  let rtwExpired = false, rtwExpiringSoon = false;
+  if (rtwExpiry) {
+    const days = (new Date(rtwExpiry).getTime() - Date.now()) / 86400000;
+    if (days < 0) rtwExpired = true;
+    else if (days <= 30) rtwExpiringSoon = true;
+  }
+  const rtwBase = complianceStatus("RTW", c.right_to_work_on_file);
+  const idMissing = !c.id_document_type;
   const compliance = [
-    { label: "Right to work", ...complianceStatus("RTW", c.right_to_work_on_file) },
+    { label: "Right to work", ...rtwBase, expired: rtwBase.expired || rtwExpired, expiringSoon: rtwBase.expiringSoon || rtwExpiringSoon, ok: rtwBase.ok && !rtwExpired, date: rtwExpiry },
+    { label: "ID", ok: !idMissing, missing: idMissing, expired: false, expiringSoon: false, raw: c.id_document_type },
     { label: "DBS", ...complianceStatus("DBS", c.dbs_done, c.dbs_date), date: c.dbs_date },
     { label: "Safeguarding", ...complianceStatus("SG", c.safeguarding_done) },
     { label: "PAT (own kit)", ...complianceStatus("PAT", c.pat_test_personal_kit) },
@@ -152,6 +162,7 @@ export default function CleanerDetail() {
             <Field label="Team" v={c.team_id} />
             <Field label="Active" v={c.active} />
             <Field label="Sub-NLW" v={c.sub_nlw_flag} />
+            <Field label="Starter checklist" v={c.starter_checklist_completed} />
             <Field label="Notes" v={c.notes} />
           </CardContent>
         </Card>

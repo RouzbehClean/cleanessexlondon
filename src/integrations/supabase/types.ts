@@ -22,14 +22,17 @@ export type Database = {
           dbs_done: string | null
           email: string | null
           employment_type: string | null
+          id_document_type: string | null
           name: string | null
           notes: string | null
           pat_test_personal_kit: string | null
           phone: string | null
           pk: string
           region_primary: string | null
+          right_to_work_expiry: string | null
           right_to_work_on_file: string | null
           safeguarding_done: string | null
+          starter_checklist_completed: string | null
           sub_nlw_flag: string | null
           team_id: string | null
           version_id: string
@@ -41,14 +44,17 @@ export type Database = {
           dbs_done?: string | null
           email?: string | null
           employment_type?: string | null
+          id_document_type?: string | null
           name?: string | null
           notes?: string | null
           pat_test_personal_kit?: string | null
           phone?: string | null
           pk?: string
           region_primary?: string | null
+          right_to_work_expiry?: string | null
           right_to_work_on_file?: string | null
           safeguarding_done?: string | null
+          starter_checklist_completed?: string | null
           sub_nlw_flag?: string | null
           team_id?: string | null
           version_id: string
@@ -60,14 +66,17 @@ export type Database = {
           dbs_done?: string | null
           email?: string | null
           employment_type?: string | null
+          id_document_type?: string | null
           name?: string | null
           notes?: string | null
           pat_test_personal_kit?: string | null
           phone?: string | null
           pk?: string
           region_primary?: string | null
+          right_to_work_expiry?: string | null
           right_to_work_on_file?: string | null
           safeguarding_done?: string | null
+          starter_checklist_completed?: string | null
           sub_nlw_flag?: string | null
           team_id?: string | null
           version_id?: string
