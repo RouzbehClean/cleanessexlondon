@@ -66,6 +66,12 @@ export default function CleanerDetail() {
   const [delivery, setDelivery] = useState<any[]>([]);
   const [showHistorical, setShowHistorical] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [editOpen, setEditOpen] = useState(false);
+
+  async function reload() {
+    const { data: cleaner } = await supabase.from("cleaners_live" as any).select("*").eq("cleaner_id", cleanerId).maybeSingle();
+    setC(cleaner);
+  }
 
   useEffect(() => {
     (async () => {
