@@ -46,10 +46,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const isAdmin = roles.some((r) => r.role === "admin");
+  const isOwner = roles.some((r) => r.role === "owner");
+  const isOwnerOrAdmin = isAdmin || isOwner;
 
   return (
     <AuthContext.Provider value={{
-      session, user, roles, isAdmin, loading,
+      session, user, roles, isAdmin, isOwner, isOwnerOrAdmin, loading,
       refreshRoles: () => loadRoles(user?.id ?? null),
       signOut: async () => { await supabase.auth.signOut(); },
     }}>
