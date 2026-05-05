@@ -152,6 +152,7 @@ export default function CleanerDetail() {
             <Field label="Team" v={c.team_id} />
             <Field label="Active" v={c.active} />
             <Field label="Sub-NLW" v={c.sub_nlw_flag} />
+            <Field label="Starter checklist" v={c.starter_checklist_completed} />
             <Field label="Notes" v={c.notes} />
           </CardContent>
         </Card>
