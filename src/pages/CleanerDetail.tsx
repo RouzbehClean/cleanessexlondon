@@ -293,6 +293,18 @@ export default function CleanerDetail() {
           </Table>
         </CardContent>
       </Card>
+
+      <EntityFormDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        entity="cleaners"
+        idField="cleaner_id"
+        title="Edit cleaner"
+        fields={CLEANER_FIELDS}
+        initial={c}
+        isAdmin={isAdmin}
+        onSaved={reload}
+      />
     </div>
   );
 }
