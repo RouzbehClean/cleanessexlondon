@@ -163,7 +163,10 @@ export default function CleanerDetail() {
               {parseBool(c.sub_nlw_flag) === true && <Badge variant="destructive" className="ml-2">Sub-NLW</Badge>}
             </p>
           </div>
-          <Button variant="outline" onClick={exportTimesheet}>Export Timesheet (Excel)</Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setEditOpen(true)}><Pencil className="mr-1 h-4 w-4" />Edit</Button>
+            <Button variant="outline" onClick={exportTimesheet}>Export Timesheet (Excel)</Button>
+          </div>
         </div>
       </div>
 
