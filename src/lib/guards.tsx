@@ -14,3 +14,10 @@ export function RequireAdmin({ children }: { children: JSX.Element }) {
   if (!isAdmin) return <Navigate to="/" replace />;
   return children;
 }
+
+export function RequireOwnerOrAdmin({ children }: { children: JSX.Element }) {
+  const { isOwnerOrAdmin, loading } = useAuth();
+  if (loading) return <div className="p-8 text-muted-foreground">Loading…</div>;
+  if (!isOwnerOrAdmin) return <Navigate to="/" replace />;
+  return children;
+}

@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { supabase } from "@/integrations/supabase/client";
 import type { Session, User } from "@supabase/supabase-js";
 
-export type AppRole = "admin" | "staff";
+export type AppRole = "admin" | "staff" | "owner";
 export interface RoleInfo { role: AppRole }
 
 interface AuthContextValue {
@@ -10,6 +10,8 @@ interface AuthContextValue {
   user: User | null;
   roles: RoleInfo[];
   isAdmin: boolean;
+  isOwner: boolean;
+  isOwnerOrAdmin: boolean;
   loading: boolean;
   refreshRoles: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -44,10 +46,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const isAdmin = roles.some((r) => r.role === "admin");
+  const isOwner = roles.some((r) => r.role === "owner");
+  const isOwnerOrAdmin = isAdmin || isOwner;
 
   return (
     <AuthContext.Provider value={{
-      session, user, roles, isAdmin, loading,
+      session, user, roles, isAdmin, isOwner, isOwnerOrAdmin, loading,
       refreshRoles: () => loadRoles(user?.id ?? null),
       signOut: async () => { await supabase.auth.signOut(); },
     }}>

@@ -1,10 +1,10 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
-import { Building2, Users, Upload, UserCog, LogOut, Home, Sparkles, CalendarDays, CalendarRange, ClipboardCheck, CalendarOff, AlertTriangle, BarChart3, History } from "lucide-react";
+import { Building2, Users, Upload, UserCog, LogOut, Home, Sparkles, CalendarDays, CalendarRange, ClipboardCheck, CalendarOff, AlertTriangle, BarChart3, History, Coins, ClipboardList } from "lucide-react";
 
 export default function AppShell() {
-  const { isAdmin, signOut, user } = useAuth();
+  const { isAdmin, isOwnerOrAdmin, isOwner, signOut, user } = useAuth();
   const nav = useNavigate();
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -37,6 +37,8 @@ export default function AppShell() {
           <NavLink to="/sites" className={linkClass}><Building2 className="h-4 w-4" />Sites</NavLink>
           <NavLink to="/cleaners" className={linkClass}><Users className="h-4 w-4" />Cleaners</NavLink>
           <NavLink to="/closures" className={linkClass}><CalendarOff className="h-4 w-4" />Closures</NavLink>
+          <NavLink to="/commissions" className={linkClass}><Coins className="h-4 w-4" />Commissions</NavLink>
+          {isOwnerOrAdmin && <NavLink to="/commissions/review" className={linkClass}><ClipboardList className="h-4 w-4" />Review queue</NavLink>}
           {isAdmin && <NavLink to="/uploads" className={linkClass}><Upload className="h-4 w-4" />Uploads</NavLink>}
           {isAdmin && <NavLink to="/users" className={linkClass}><UserCog className="h-4 w-4" />Users</NavLink>}
           {isAdmin && <NavLink to="/overrides" className={linkClass}><History className="h-4 w-4" />Edits</NavLink>}
@@ -49,7 +51,7 @@ export default function AppShell() {
             <div className="min-w-0 flex-1">
               <div className="truncate text-xs text-sidebar-foreground/90">{user?.email}</div>
               <div className="text-[10px] uppercase tracking-wider text-sidebar-foreground/50">
-                {isAdmin ? "Admin" : "Staff"}
+                {isOwner ? "Owner" : isAdmin ? "Admin" : "Staff"}
               </div>
             </div>
           </div>

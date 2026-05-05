@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/lib/auth";
-import { RequireAuth, RequireAdmin } from "@/lib/guards";
+import { RequireAuth, RequireAdmin, RequireOwnerOrAdmin } from "@/lib/guards";
 import AppShell from "@/components/AppShell";
 import Login from "@/pages/Login";
 import ForgotPassword from "@/pages/ForgotPassword";
@@ -24,6 +24,8 @@ import CleanerDetail from "@/pages/CleanerDetail";
 import Uploads from "@/pages/Uploads";
 import Users from "@/pages/Users";
 import Overrides from "@/pages/Overrides";
+import Commissions from "@/pages/Commissions";
+import CommissionsReview from "@/pages/CommissionsReview";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -55,6 +57,8 @@ const App = () => (
               <Route path="/uploads" element={<RequireAdmin><Uploads /></RequireAdmin>} />
               <Route path="/users" element={<RequireAdmin><Users /></RequireAdmin>} />
               <Route path="/overrides" element={<RequireAdmin><Overrides /></RequireAdmin>} />
+              <Route path="/commissions" element={<Commissions />} />
+              <Route path="/commissions/review" element={<RequireOwnerOrAdmin><CommissionsReview /></RequireOwnerOrAdmin>} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
