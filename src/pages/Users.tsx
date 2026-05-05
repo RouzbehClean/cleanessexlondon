@@ -75,6 +75,15 @@ export default function Users() {
     refresh();
   };
 
+  const changeRole = async (userId: string, newRole: "admin" | "staff" | "owner") => {
+    const { error: delErr } = await supabase.from("user_roles").delete().eq("user_id", userId);
+    if (delErr) return toast.error(delErr.message);
+    const { error: insErr } = await supabase.from("user_roles").insert({ user_id: userId, role: newRole });
+    if (insErr) return toast.error(insErr.message);
+    toast.success("Role updated");
+    refresh();
+  };
+
   return (
     <div className="space-y-6 p-6">
       <h1 className="text-2xl font-semibold tracking-tight">Users & roles</h1>
@@ -110,10 +119,19 @@ export default function Users() {
                 <TableRow key={m.user_id}>
                   <TableCell>{m.profile?.email ?? "—"}</TableCell>
                   <TableCell>{m.profile?.display_name ?? "—"}</TableCell>
-                  <TableCell className="space-x-1">
-                    {m.roles.map((r: any, i: number) => (
-                      <Badge key={i} variant={r.role === "admin" ? "default" : "secondary"}>{r.role}</Badge>
-                    ))}
+                  <TableCell>
+                    <Select
+                      value={m.roles[0]?.role ?? "staff"}
+                      onValueChange={(v: any) => changeRole(m.user_id, v)}
+                      disabled={m.user_id === user?.id}
+                    >
+                      <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="staff">Staff</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
+                        <SelectItem value="owner">Owner</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </TableCell>
                   <TableCell className="text-right">
                     <AlertDialog>
