@@ -7,7 +7,29 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { downloadXlsx, isCurrent } from "@/lib/exports";
-import { AlertTriangle, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { AlertTriangle, CheckCircle2, XCircle, Clock, Pencil } from "lucide-react";
+import EntityFormDialog, { FieldDef } from "@/components/EntityFormDialog";
+
+const CLEANER_FIELDS: FieldDef[] = [
+  { key: "cleaner_id", label: "Cleaner ID", required: true, half: true, disabled: true },
+  { key: "name", label: "Name", required: true, half: true },
+  { key: "phone", label: "Phone", half: true },
+  { key: "email", label: "Email", half: true },
+  { key: "region_primary", label: "Primary region", half: true },
+  { key: "team_id", label: "Team", half: true },
+  { key: "employment_type", label: "Employment type", type: "select", options: ["Employee", "Self-employed", "Agency"], half: true },
+  { key: "active", label: "Active", type: "select", options: ["Y", "N"], half: true },
+  { key: "sub_nlw_flag", label: "Sub-NLW", type: "select", options: ["Y", "N"], half: true, adminOnly: true },
+  { key: "starter_checklist_completed", label: "Starter checklist completed", type: "select", options: ["Y", "N"], half: true },
+  { key: "right_to_work_on_file", label: "Right to work on file", type: "select", options: ["Y", "N"], half: true },
+  { key: "right_to_work_expiry", label: "Right to work expiry", type: "date", half: true },
+  { key: "id_document_type", label: "ID document", type: "select", options: ["Passport", "Driving licence"], half: true },
+  { key: "dbs_done", label: "DBS done", type: "select", options: ["Y", "N"], half: true },
+  { key: "dbs_date", label: "DBS date", type: "date", half: true },
+  { key: "safeguarding_done", label: "Safeguarding done", type: "select", options: ["Y", "N"], half: true },
+  { key: "pat_test_personal_kit", label: "PAT (own kit)", type: "select", options: ["Y", "N"], half: true },
+  { key: "notes", label: "Notes", type: "textarea" },
+];
 
 const DAY_ORDER = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
