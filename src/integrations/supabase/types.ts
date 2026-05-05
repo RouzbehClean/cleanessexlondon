@@ -204,6 +204,138 @@ export type Database = {
         }
         Relationships: []
       }
+      commission_entries: {
+        Row: {
+          calculated_amount: number
+          clawback_reason: string | null
+          clawed_back_at: string | null
+          clawed_back_by: string | null
+          client_or_job: string
+          contract_hours: number | null
+          created_at: string
+          hours: number | null
+          hours_paid_confirmed: boolean | null
+          id: string
+          is_new_contract: boolean | null
+          notes: string | null
+          override_amount: number | null
+          override_reason: string | null
+          paid_at: string | null
+          period_month: string
+          profit_amount: number | null
+          profit_tier: string | null
+          rejected_reason: string | null
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          sent_to_accounts_at: string | null
+          staff_name: string | null
+          staff_user_id: string
+          status: Database["public"]["Enums"]["commission_status"]
+          type: Database["public"]["Enums"]["commission_type"]
+          updated_at: string
+        }
+        Insert: {
+          calculated_amount?: number
+          clawback_reason?: string | null
+          clawed_back_at?: string | null
+          clawed_back_by?: string | null
+          client_or_job: string
+          contract_hours?: number | null
+          created_at?: string
+          hours?: number | null
+          hours_paid_confirmed?: boolean | null
+          id?: string
+          is_new_contract?: boolean | null
+          notes?: string | null
+          override_amount?: number | null
+          override_reason?: string | null
+          paid_at?: string | null
+          period_month: string
+          profit_amount?: number | null
+          profit_tier?: string | null
+          rejected_reason?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sent_to_accounts_at?: string | null
+          staff_name?: string | null
+          staff_user_id: string
+          status?: Database["public"]["Enums"]["commission_status"]
+          type: Database["public"]["Enums"]["commission_type"]
+          updated_at?: string
+        }
+        Update: {
+          calculated_amount?: number
+          clawback_reason?: string | null
+          clawed_back_at?: string | null
+          clawed_back_by?: string | null
+          client_or_job?: string
+          contract_hours?: number | null
+          created_at?: string
+          hours?: number | null
+          hours_paid_confirmed?: boolean | null
+          id?: string
+          is_new_contract?: boolean | null
+          notes?: string | null
+          override_amount?: number | null
+          override_reason?: string | null
+          paid_at?: string | null
+          period_month?: string
+          profit_amount?: number | null
+          profit_tier?: string | null
+          rejected_reason?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sent_to_accounts_at?: string | null
+          staff_name?: string | null
+          staff_user_id?: string
+          status?: Database["public"]["Enums"]["commission_status"]
+          type?: Database["public"]["Enums"]["commission_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      commission_rules: {
+        Row: {
+          bonus_tiers: Json
+          id: string
+          notes: string | null
+          profit_max_payout: number
+          profit_min_payout: number
+          profit_rate_created: number
+          profit_rate_identified: number
+          recurring_tiers: Json
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          bonus_tiers?: Json
+          id?: string
+          notes?: string | null
+          profit_max_payout?: number
+          profit_min_payout?: number
+          profit_rate_created?: number
+          profit_rate_identified?: number
+          recurring_tiers?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          bonus_tiers?: Json
+          id?: string
+          notes?: string | null
+          profit_max_payout?: number
+          profit_min_payout?: number
+          profit_rate_created?: number
+          profit_rate_identified?: number
+          recurring_tiers?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       data_versions: {
         Row: {
           activated_at: string | null
@@ -758,6 +890,15 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "staff" | "owner"
+      commission_status:
+        | "draft"
+        | "submitted"
+        | "approved"
+        | "rejected"
+        | "sent_to_accounts"
+        | "paid"
+        | "clawed_back"
+      commission_type: "recurring" | "bonus" | "profit"
       override_op: "upsert" | "delete"
     }
     CompositeTypes: {
@@ -887,6 +1028,16 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "staff", "owner"],
+      commission_status: [
+        "draft",
+        "submitted",
+        "approved",
+        "rejected",
+        "sent_to_accounts",
+        "paid",
+        "clawed_back",
+      ],
+      commission_type: ["recurring", "bonus", "profit"],
       override_op: ["upsert", "delete"],
     },
   },
