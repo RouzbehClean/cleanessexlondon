@@ -26,7 +26,7 @@ export default function Users() {
   const [members, setMembers] = useState<any[]>([]);
   const [email, setEmail] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [role, setRole] = useState<"admin" | "staff">("staff");
+  const [role, setRole] = useState<"admin" | "staff" | "owner">("staff");
   const [busy, setBusy] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -89,8 +89,9 @@ export default function Users() {
               <Select value={role} onValueChange={(v: any) => setRole(v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="staff">Staff (read-only)</SelectItem>
-                  <SelectItem value="admin">Admin (owner)</SelectItem>
+                  <SelectItem value="staff">Staff</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="owner">Owner (commission approver)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
