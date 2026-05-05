@@ -50,6 +50,15 @@ export default function Alerts() {
       if (c.active && c.active.toLowerCase() === "no") continue;
       const rtw = (c.right_to_work_on_file ?? "").toLowerCase();
       if (!rtw || rtw === "no") out.push({ cleaner: c, issue: "Right to Work missing", severity: "high" });
+      if (c.right_to_work_expiry) {
+        const d = daysBetween(c.right_to_work_expiry, today);
+        if (d < 0) out.push({ cleaner: c, issue: `Right to Work expired ${-d}d ago`, severity: "high" });
+        else if (d <= 30) out.push({ cleaner: c, issue: `Right to Work expires in ${d}d`, severity: "high" });
+      }
+      if (!c.id_document_type) out.push({ cleaner: c, issue: "ID document missing", severity: "med" });
+      if (!c.starter_checklist_completed || c.starter_checklist_completed.toLowerCase() === "n" || c.starter_checklist_completed.toLowerCase() === "no") {
+        out.push({ cleaner: c, issue: "Starter checklist not completed", severity: "med" });
+      }
       const dbs = (c.dbs_done ?? "").toLowerCase();
       if (!dbs || dbs === "no") out.push({ cleaner: c, issue: "DBS not on file", severity: "high" });
       else if (c.dbs_date) {
